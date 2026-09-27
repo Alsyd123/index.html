@@ -1,6 +1,4 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
+<!DOCTYPE html><html lang="ar" dir="rtl"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#070b14">
@@ -153,6 +151,16 @@ button{cursor:pointer}
   background:#2a1115;
   color:#fca5a5;
   border-color:#7f1d1d;
+}
+.badge.loading{
+  background:#1a1a2e;
+  color:#94a3b8;
+  border:1px solid #243247;
+}
+.badge.error{
+  background:#2a1a00;
+  color:#f59e0b;
+  border:1px solid #92400e;
 }
 .grid{
   display:grid;
@@ -308,7 +316,7 @@ button{cursor:pointer}
 
       <div class="status">
         <span class="dot"></span>
-        <span id="backendStatus">Backend متصل</span>
+        <span id="backendStatus">جارٍ التحقق...</span>
       </div>
 
       <div class="stats">
@@ -324,7 +332,7 @@ button{cursor:pointer}
 
         <div class="mini stat">
           المسيرات
-          <strong id="marchCount">0/0</strong>
+          <strong id="marchCount">0/5</strong>
         </div>
 
         <div class="mini stat">
@@ -354,7 +362,7 @@ button{cursor:pointer}
 
   <div class="section-title">
     <h3>المزارع</h3>
-    <span class="muted" id="farmSummary">Farm 1</span>
+    <span class="muted" id="farmSummary">1 Farm</span>
   </div>
 
   <section class="farms" id="farms"></section>
@@ -422,7 +430,6 @@ button{cursor:pointer}
   </div>
 </div>
 
-
 <script>
 
 const API_BASE =
@@ -437,7 +444,9 @@ let farms = [
     bot:false,
     marches:0,
     total:5,
-    connection:"Android Cloud"
+    connection:"Android Cloud",
+    loading:true,
+    backendError:false
   }
 ];
 
@@ -451,7 +460,7 @@ function addLog(message){
   const row=document.createElement("div");
   row.className="log-row";
 
-  row.innerHTML=
+  row.innerHTML =
     `<span class="time">${now()}</span><span>${message}</span>`;
 
   box.prepend(row);
@@ -465,13 +474,21 @@ function clearLog(){
 function render(){
 
   const container=document.getElementById("farms");
-
   container.innerHTML="";
 
   farms.forEach(farm=>{
 
     const card=document.createElement("div");
     card.className="card";
+
+    let badgeHtml;
+    if(farm.loading){
+      badgeHtml = `<span class="badge loading">جارٍ التحقق...</span>`;
+    } else if(farm.backendError){
+      badgeHtml = `<span class="badge error">Backend غير متاح</span>`;
+    } else {
+      badgeHtml = `<span class="badge ${farm.active?"":"off"}">${farm.active?"تعمل":"متوقفة"}</span>`;
+    }
 
     card.innerHTML=`
 
@@ -482,9 +499,7 @@ function render(){
           <div class="muted">${escapeHtml(farm.id)}</div>
         </div>
 
-        <span class="badge ${farm.active?"":"off"}">
-          ${farm.active?"تعمل":"متوقفة"}
-        </span>
+        ${badgeHtml}
 
       </div>
 
@@ -492,17 +507,17 @@ function render(){
 
         <div class="mini">
           Android Cloud
-          <strong>${farm.android?"متصل":"غير مشغل"}</strong>
+          <strong>${farm.loading?"...":(farm.android?"متصل":"غير مشغل")}</strong>
         </div>
 
         <div class="mini">
           Doomsday
-          <strong>${farm.android?"جاهزة":"غير متصلة"}</strong>
+          <strong>${farm.loading?"...":(farm.android?"جاهزة":"غير متصلة")}</strong>
         </div>
 
         <div class="mini">
           الأتمتة
-          <strong>${farm.bot?"تعمل":"متوقفة"}</strong>
+          <strong>${farm.loading?"...":(farm.bot?"تعمل":"متوقفة")}</strong>
         </div>
 
       </div>
@@ -573,6 +588,8 @@ async function startFarm(id){
   farm.active=true;
   farm.android=true;
   farm.marches=farm.total;
+  farm.loading=false;
+  farm.backendError=false;
 
   addLog(`تم تشغيل ${farm.name}.`);
 
@@ -580,12 +597,14 @@ async function startFarm(id){
 
   if(id==="farm-1"){
     try{
-      await fetch(API_BASE+"/api/farms/1/start",{
+      const resp = await fetch(API_BASE+"/api/farms/1/start",{
         method:"POST"
       });
+      if(!resp.ok) throw new Error("Backend returned " + resp.status);
     }catch(e){
       document.getElementById("backendStatus").textContent=
         "Backend غير متاح";
+      addLog(`فشل تشغيل ${farm.name} — Backend غير متاح.`);
     }
   }
 }
@@ -600,6 +619,8 @@ async function stopFarm(id){
   farm.android=false;
   farm.bot=false;
   farm.marches=0;
+  farm.loading=false;
+  farm.backendError=false;
 
   addLog(`تم إيقاف ${farm.name}.`);
 
@@ -607,10 +628,15 @@ async function stopFarm(id){
 
   if(id==="farm-1"){
     try{
-      await fetch(API_BASE+"/api/farms/1/stop",{
+      const resp = await fetch(API_BASE+"/api/farms/1/stop",{
         method:"POST"
       });
-    }catch(e){}
+      if(!resp.ok) throw new Error("Backend returned " + resp.status);
+    }catch(e){
+      document.getElementById("backendStatus").textContent=
+        "Backend غير متاح";
+      addLog(`فشل إيقاف ${farm.name} — Backend غير متاح.`);
+    }
   }
 }
 
@@ -626,6 +652,8 @@ async function toggleBot(id){
   }
 
   farm.bot=!farm.bot;
+  farm.loading=false;
+  farm.backendError=false;
 
   addLog(
     farm.bot
@@ -637,14 +665,19 @@ async function toggleBot(id){
 
   if(id==="farm-1"){
     try{
-      await fetch(
+      const resp = await fetch(
         API_BASE+
         (farm.bot
         ?"/api/farms/1/bot/start"
         :"/api/farms/1/bot/stop"),
         {method:"POST"}
       );
-    }catch(e){}
+      if(!resp.ok) throw new Error("Backend returned " + resp.status);
+    }catch(e){
+      document.getElementById("backendStatus").textContent=
+        "Backend غير متاح";
+      addLog(`فشل تبديل الأتمتة في ${farm.name} — Backend غير متاح.`);
+    }
   }
 }
 
@@ -658,15 +691,15 @@ function closeFarmModal(){
 
 function createFarm(){
 
-  const name=
+  const name =
     document.getElementById("farmName").value.trim()
     ||`Farm ${farms.length+1}`;
 
-  const id=
+  const id =
     document.getElementById("farmId").value.trim()
     ||`farm-${farms.length+1}`;
 
-  const connection=
+  const connection =
     document.getElementById("farmConnection").value;
 
   if(farms.some(f=>f.id===id)){
@@ -682,7 +715,9 @@ function createFarm(){
     bot:false,
     marches:0,
     total:5,
-    connection:connection
+    connection:connection,
+    loading:false,
+    backendError:false
   });
 
   closeFarmModal();
@@ -729,36 +764,50 @@ async function refreshAll(){
 
   addLog("جاري تحديث حالة النظام...");
 
+  const farm = farms.find(f=>f.id==="farm-1");
+
   try{
 
-    const response=
+    const response =
       await fetch(API_BASE+"/api/farms/1/status");
 
-    if(!response.ok)throw new Error();
+    if(!response.ok) throw new Error("Backend returned " + response.status);
 
-    const data=await response.json();
-
-    const farm=farms.find(f=>f.id==="farm-1");
+    const data = await response.json();
 
     if(farm){
+      farm.loading = false;
+      farm.backendError = false;
+      farm.android = !!data.farm.android;
+      farm.bot = !!data.farm.bot;
+      farm.marches = data.farm.android ? 5 : 0;
 
-      farm.android=!!data.android;
-      farm.bot=!!data.bot;
-      farm.marches=data.android?5:0;
-      farm.active=!!data.android;
+      if(data.farm.status === "ready"){
+        farm.active = true;
+      } else if(data.farm.status === "offline"){
+        farm.active = false;
+      } else {
+        farm.active = !!data.farm.android;
+      }
     }
 
-    document.getElementById("backendStatus").textContent=
+    document.getElementById("backendStatus").textContent =
       "Backend متصل";
 
     addLog("تم تحديث الحالة من Backend.");
 
   }catch(e){
 
-    document.getElementById("backendStatus").textContent=
+    if(farm){
+      farm.loading = false;
+      farm.backendError = true;
+      // Do NOT set active=false — state is unknown, not confirmed stopped
+    }
+
+    document.getElementById("backendStatus").textContent =
       "Backend غير متاح";
 
-    addLog("تعذر الاتصال بـ Backend.");
+    addLog("تعذر الاتصال بـ Backend — الحالة غير مؤكدة.");
 
   }
 
@@ -767,7 +816,7 @@ async function refreshAll(){
 
 function changeLanguage(){
 
-  const lang=
+  const lang =
     document.getElementById("language").value;
 
   if(lang==="en"){
@@ -801,5 +850,5 @@ refreshAll();
 
 </script>
 
-</body>
-          </html>
+
+</body></html>
