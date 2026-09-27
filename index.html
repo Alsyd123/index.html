@@ -3,192 +3,803 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Doomsday Farm Control V2</title>
+<meta name="theme-color" content="#070b14">
+<title>PABLO • Doomsday Farm Control</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Tahoma,sans-serif;background:#0f172a;color:#e5e7eb}
-header{padding:22px 18px;background:#111827;border-bottom:1px solid #263244}
-h1{margin:0 0 6px;font-size:25px}
-.sub{color:#94a3b8;font-size:14px}
-.wrap{max-width:1100px;margin:auto;padding:18px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
-.card{background:#172033;border:1px solid #29364b;border-radius:16px;padding:18px;box-shadow:0 8px 25px #0003}
-.card h2{margin:0 0 12px;font-size:19px}
-.row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #263244}
-.row:last-child{border-bottom:0}
-.label{color:#94a3b8}
-.value{font-weight:700}
-.ok{color:#34d399}.warn{color:#fbbf24}.off{color:#94a3b8}.bad{color:#fb7185}
-.progress{height:9px;background:#0b1220;border-radius:20px;overflow:hidden;margin:10px 0 14px}
-.progress>div{height:100%;width:100%;background:#34d399}
-.buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
-button{border:0;border-radius:10px;padding:11px 10px;background:#2563eb;color:white;font-weight:700;cursor:pointer}
-button.secondary{background:#334155}
-button.green{background:#059669}
-button.red{background:#b91c1c}
-button:disabled{opacity:.45;cursor:not-allowed}
-.panel{margin-top:16px;background:#111827;border:1px solid #29364b;border-radius:16px;padding:18px}
-.log{height:190px;overflow:auto;background:#0b1220;border-radius:10px;padding:10px;font-family:ui-monospace,monospace;font-size:12px;line-height:1.7}
-.log div{border-bottom:1px solid #172033;padding:3px 0}
-.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#26364e;font-size:12px}
-.note{color:#94a3b8;font-size:13px;line-height:1.6;margin-top:10px}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
-.api{font-size:12px;color:#94a3b8}
-@media(max-width:600px){.buttons{grid-template-columns:1fr}.wrap{padding:12px}}
+:root{
+  --bg:#070b14;
+  --panel:#101827;
+  --panel2:#151f31;
+  --line:#243247;
+  --text:#f1f5f9;
+  --muted:#94a3b8;
+  --green:#22c55e;
+  --red:#ef4444;
+  --blue:#3b82f6;
+  --yellow:#f59e0b;
+}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Tahoma,Arial,sans-serif;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.header{
+  padding:18px;
+  border-bottom:1px solid var(--line);
+  background:#0a101c;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+.header-inner{
+  max-width:1200px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.logo{
+  width:46px;
+  height:46px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#2563eb,#7c3aed);
+  font-weight:900;
+}
+.brand h1{margin:0;font-size:20px}
+.brand small{color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:var(--text);
+  padding:9px 13px;
+  border-radius:10px;
+}
+.btn:hover{background:var(--panel2)}
+.btn.primary{
+  background:var(--blue);
+  border-color:var(--blue);
+}
+.btn.danger{
+  background:#3a1217;
+  border-color:#7f1d1d;
+}
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:22px 18px 80px;
+}
+.hero{
+  display:grid;
+  grid-template-columns:1.5fr 1fr;
+  gap:15px;
+}
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px;
+}
+.hero h2{margin:0 0 8px;font-size:28px}
+.muted{color:var(--muted)}
+.status{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-top:12px;
+  color:var(--green);
+}
+.dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--green);
+}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-top:15px;
+}
+.stat strong{
+  display:block;
+  font-size:25px;
+  margin-top:6px;
+}
+.section-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:28px 0 12px;
+}
+.section-title h3{margin:0}
+.farms{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+.farm-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+.farm-name{
+  font-size:19px;
+  font-weight:800;
+}
+.badge{
+  padding:5px 9px;
+  border-radius:20px;
+  font-size:12px;
+  background:#10261a;
+  color:#86efac;
+  border:1px solid #166534;
+}
+.badge.off{
+  background:#2a1115;
+  color:#fca5a5;
+  border-color:#7f1d1d;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin:15px 0;
+}
+.mini{
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:12px;
+}
+.mini strong{
+  display:block;
+  margin-top:5px;
+}
+.progress{
+  height:8px;
+  background:#0a101c;
+  border-radius:20px;
+  overflow:hidden;
+  margin:14px 0;
+}
+.progress span{
+  display:block;
+  height:100%;
+  background:linear-gradient(90deg,#2563eb,#22c55e);
+}
+.farm-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.log{
+  max-height:260px;
+  overflow:auto;
+}
+.log-row{
+  padding:10px 0;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  gap:10px;
+}
+.time{color:var(--muted);font-size:12px}
+.empty{
+  text-align:center;
+  padding:35px;
+  color:var(--muted);
+}
+.footer{
+  text-align:center;
+  color:var(--muted);
+  padding:25px;
+  border-top:1px solid var(--line);
+}
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:50;
+}
+.modal.show{display:flex}
+.modal-box{
+  width:min(520px,100%);
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:20px;
+}
+.modal-box h3{margin-top:0}
+.field{
+  margin:12px 0;
+}
+.field label{
+  display:block;
+  margin-bottom:6px;
+  color:var(--muted);
+}
+.field input,.field select{
+  width:100%;
+  padding:11px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:#0a101c;
+  color:var(--text);
+}
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:16px;
+}
+.assistant{
+  min-height:100px;
+  background:#0a101c;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:14px;
+  line-height:1.8;
+}
+@media(max-width:850px){
+  .hero{grid-template-columns:1fr}
+  .farms{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:520px){
+  .header-inner{align-items:flex-start;flex-direction:column}
+  .stats{grid-template-columns:1fr 1fr}
+  .grid{grid-template-columns:1fr}
+  .hero h2{font-size:23px}
+}
 </style>
 </head>
+
 <body>
-<header>
-  <div class="wrap">
-    <h1>🌾 Doomsday Farm Control — V2</h1>
-    <div class="sub">لوحة التحكم التجريبية — Farm 1 مخصصة للاختبار قبل ربط السحابة واللعبة.</div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="logo">P</div>
+      <div>
+        <h1>PABLO</h1>
+        <small>Doomsday Farm Control • Master</small>
+      </div>
+    </div>
+
+    <div class="actions">
+      <select class="btn" id="language" onchange="changeLanguage()">
+        <option value="ar">العربية</option>
+        <option value="en">English</option>
+        <option value="ru">Русский</option>
+      </select>
+      <button class="btn" onclick="openAssistant()">PABLO Assistant</button>
+      <button class="btn primary" onclick="openFarmModal()">＋ مزرعة جديدة</button>
+    </div>
   </div>
 </header>
 
-<main class="wrap">
-  <div class="topbar">
-    <span class="badge" id="overall">النظام محلي — لا يوجد خادم متصل</span>
-    <span class="api">Backend: <b id="apiState">غير متصل</b></span>
+<main class="container">
+
+  <section class="hero">
+
+    <div class="card">
+      <h2>لوحة التحكم الرئيسية</h2>
+      <div class="muted">
+        مركز Master لإدارة مزارع Doomsday المتعددة بشكل مستقل.
+      </div>
+
+      <div class="status">
+        <span class="dot"></span>
+        <span id="backendStatus">Backend متصل</span>
+      </div>
+
+      <div class="stats">
+        <div class="mini stat">
+          المزارع
+          <strong id="farmCount">1</strong>
+        </div>
+
+        <div class="mini stat">
+          تعمل
+          <strong id="runningCount">0</strong>
+        </div>
+
+        <div class="mini stat">
+          المسيرات
+          <strong id="marchCount">0/0</strong>
+        </div>
+
+        <div class="mini stat">
+          الأتمتة
+          <strong id="botCount">0</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Master System</h3>
+      <p class="muted">
+        هذه النسخة هي المركز الرئيسي. كل Farm لها حالة مستقلة ويمكن لاحقًا ربطها
+        بجهاز Android Cloud مختلف.
+      </p>
+
+      <button class="btn primary" onclick="refreshAll()">
+        تحديث الحالة
+      </button>
+
+      <button class="btn" onclick="openAssistant()">
+        تشخيص بواسطة PABLO
+      </button>
+    </div>
+
+  </section>
+
+  <div class="section-title">
+    <h3>المزارع</h3>
+    <span class="muted" id="farmSummary">Farm 1</span>
   </div>
 
-  <section class="grid">
-    <article class="card">
-      <h2>🧪 Farm 1 — الحساب التجريبي</h2>
+  <section class="farms" id="farms"></section>
 
-      <div class="row"><span class="label">Android Cloud</span><span class="value off" id="android">متوقف</span></div>
-      <div class="row"><span class="label">Doomsday</span><span class="value off" id="game">غير مشغل</span></div>
-      <div class="row"><span class="label">الأتمتة</span><span class="value off" id="bot">متوقفة</span></div>
-      <div class="row"><span class="label">مسيرات الجمع</span><span class="value" id="heroes">0 / 5</span></div>
+  <div class="section-title">
+    <h3>سجل النظام</h3>
+    <button class="btn" onclick="clearLog()">مسح السجل</button>
+  </div>
 
-      <div class="progress"><div id="bar" style="width:0%;background:#64748b"></div></div>
+  <section class="card log" id="log"></section>
 
-      <div class="buttons">
-        <button class="green" onclick="backendStart()">تشغيل Farm</button>
-        <button class="secondary" onclick="connectBackend()">ربط Backend</button>
-        <button onclick="backendBotStart()">بدء المراقبة</button>
-        <button class="red" onclick="backendBotStop()">إيقاف المراقبة</button>
-      </div>
-
-      <div class="note">
-        هذه الواجهة لا تتصل باللعبة بعد. الأزرار الحالية تحاكي الحالة فقط حتى نبني الـ Backend والـ Android Cloud.
-      </div>
-    </article>
-
-    <article class="card">
-      <h2>⚙️ إعدادات الاختبار</h2>
-      <div class="row"><span class="label">وضع الاختبار</span><span class="value ok">مفعل</span></div>
-      <div class="row"><span class="label">حساب رئيسي</span><span class="value off">غير مضاف</span></div>
-      <div class="row"><span class="label">Farm 1</span><span class="value warn">تجريبي</span></div>
-      <div class="row"><span class="label">كشف المسيرات</span><span class="value">5 → 4</span></div>
-      <div class="row"><span class="label">المسار القادم</span><span class="value">Android Cloud</span></div>
-      <div class="note">
-        لن نخزن كلمة مرور الحساب داخل ملف HTML. عند بناء الخادم سنستخدم إعدادات سرية منفصلة.
-      </div>
-    </article>
-  </section>
-
-  <section class="panel">
-    <h2>📋 سجل الأحداث</h2>
-    <div class="log" id="log"></div>
-  </section>
 </main>
 
-<script>
-const API_BASE = localStorage.getItem("farmApiBase") || "";
-let androidOn=false, botOn=false, heroes=0;
+<footer class="footer">
+  PABLO • Master Control • Doomsday Farm Control
+</footer>
 
-function log(msg){
-  const t=new Date().toLocaleTimeString('ar-LY');
-  const el=document.getElementById('log');
-  el.innerHTML=`<div>[${t}] ${msg}</div>`+el.innerHTML;
+
+<!-- Farm Modal -->
+<div class="modal" id="farmModal">
+  <div class="modal-box">
+    <h3>إنشاء Farm جديدة</h3>
+
+    <div class="field">
+      <label>اسم المزرعة</label>
+      <input id="farmName" placeholder="مثال: Farm 2">
+    </div>
+
+    <div class="field">
+      <label>معرّف المزرعة</label>
+      <input id="farmId" placeholder="farm-2">
+    </div>
+
+    <div class="field">
+      <label>نوع الاتصال</label>
+      <select id="farmConnection">
+        <option>Android Cloud</option>
+        <option>Backend فقط</option>
+        <option>غير متصل</option>
+      </select>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeFarmModal()">إلغاء</button>
+      <button class="btn primary" onclick="createFarm()">إنشاء</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Assistant Modal -->
+<div class="modal" id="assistantModal">
+  <div class="modal-box">
+    <h3>🤖 PABLO Assistant</h3>
+
+    <div class="assistant" id="assistantText">
+      مرحبًا. أنا PABLO Assistant.
+      أستطيع حاليًا قراءة حالة لوحة Master وتشخيص الحالة الأساسية.
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="assistantDiagnose()">تشخيص الحالة</button>
+      <button class="btn primary" onclick="closeAssistant()">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+const API_BASE =
+  "https://broken-truth-4022.hhhvhggh704.workers.dev";
+
+let farms = [
+  {
+    id:"farm-1",
+    name:"Farm 1",
+    active:false,
+    android:false,
+    bot:false,
+    marches:0,
+    total:5,
+    connection:"Android Cloud"
+  }
+];
+
+function now(){
+  return new Date().toLocaleTimeString("ar",{hour:"2-digit",minute:"2-digit"});
 }
+
+function addLog(message){
+  const box=document.getElementById("log");
+
+  const row=document.createElement("div");
+  row.className="log-row";
+
+  row.innerHTML=
+    `<span class="time">${now()}</span><span>${message}</span>`;
+
+  box.prepend(row);
+}
+
+function clearLog(){
+  document.getElementById("log").innerHTML="";
+  addLog("تم مسح سجل النظام.");
+}
+
 function render(){
-  const a=document.getElementById('android');
-  const g=document.getElementById('game');
-  const b=document.getElementById('bot');
-  a.textContent=androidOn?'يعمل':'متوقف';
-  a.className='value '+(androidOn?'ok':'off');
-  g.textContent=androidOn?'جاهز للاختبار':'غير مشغل';
-  g.className='value '+(androidOn?'warn':'off');
-  b.textContent=botOn?'مراقبة المسيرات':'متوقفة';
-  b.className='value '+(botOn?'ok':'off');
-  document.getElementById('heroes').textContent=heroes+' / 5';
-  document.getElementById('bar').style.width=(heroes*20)+'%';
-  document.getElementById('bar').style.background=heroes?'#34d399':'#64748b';
-  document.getElementById('overall').textContent=androidOn?'Farm 1 جاهزة للاختبار المحلي':'النظام محلي — لا يوجد خادم متصل';
-}
-function toggleAndroid(){
-  androidOn=!androidOn;
-  if(androidOn){heroes=5;log('تم تشغيل Android Cloud (محاكاة محلية).');}
-  else{heroes=0;botOn=false;log('تم إيقاف Android Cloud.');}
-  render();
-}
-function openScreen(){
-  if(!androidOn){log('لا يمكن عرض الشاشة: Android متوقف.');return;}
-  log('طلب فتح شاشة Android — سيتم ربطها لاحقًا بـ WebRTC/WS-Scrcpy.');
-  alert('مكان شاشة Android سيظهر هنا بعد ربط الـ Cloud Android.');
-}
-function startBot(){
-  if(!androidOn){log('شغّل Android أولًا.');return;}
-  botOn=true; log('بدأت مراقبة عدد مسيرات الجمع: 5/5.');
-  render();
-}
-function stopBot(){botOn=false;log('تم إيقاف مراقبة المسيرات.');render();}
-render();
-log("تم تحميل لوحة V2.2 — جاهزة للـBackend.");
-if(API_BASE) refreshFromBackend();
-async function api(path, options={}){
-  if(!API_BASE) throw new Error("لم يتم تحديد عنوان Backend");
-  const r=await fetch(API_BASE+path,{
-    ...options,
-    headers:{"Content-Type":"application/json",...(options.headers||{})}
+
+  const container=document.getElementById("farms");
+
+  container.innerHTML="";
+
+  farms.forEach(farm=>{
+
+    const card=document.createElement("div");
+    card.className="card";
+
+    card.innerHTML=`
+
+      <div class="farm-head">
+
+        <div>
+          <div class="farm-name">${escapeHtml(farm.name)}</div>
+          <div class="muted">${escapeHtml(farm.id)}</div>
+        </div>
+
+        <span class="badge ${farm.active?"":"off"}">
+          ${farm.active?"تعمل":"متوقفة"}
+        </span>
+
+      </div>
+
+      <div class="grid">
+
+        <div class="mini">
+          Android Cloud
+          <strong>${farm.android?"متصل":"غير مشغل"}</strong>
+        </div>
+
+        <div class="mini">
+          Doomsday
+          <strong>${farm.android?"جاهزة":"غير متصلة"}</strong>
+        </div>
+
+        <div class="mini">
+          الأتمتة
+          <strong>${farm.bot?"تعمل":"متوقفة"}</strong>
+        </div>
+
+      </div>
+
+      <div class="muted">
+        مسيرات الجمع: ${farm.marches}/${farm.total}
+      </div>
+
+      <div class="progress">
+        <span style="width:${(farm.marches/farm.total)*100}%"></span>
+      </div>
+
+      <div class="farm-actions">
+
+        <button class="btn primary"
+          onclick="startFarm('${farm.id}')">
+          تشغيل Farm
+        </button>
+
+        <button class="btn"
+          onclick="toggleBot('${farm.id}')">
+          ${farm.bot?"إيقاف الأتمتة":"بدء الأتمتة"}
+        </button>
+
+        <button class="btn danger"
+          onclick="stopFarm('${farm.id}')">
+          إيقاف
+        </button>
+
+      </div>
+    `;
+
+    container.appendChild(card);
   });
-  const text=await r.text();
-  let data={};
-  try{ data=text?JSON.parse(text):{}; }catch(_){ data={detail:text}; }
-  if(!r.ok) throw new Error(data.detail || `HTTP ${r.status}`);
-  return data;
+
+  updateStats();
 }
-async function refreshFromBackend(){
-  try{
-    const f=await api("/api/farms/1/status");
-    androidOn=f.android; botOn=f.bot; heroes=f.heroes;
-    document.getElementById("apiState").textContent="متصل";
-    render();
-  }catch(e){
-    document.getElementById("apiState").textContent="غير متصل";
+
+function updateStats(){
+
+  document.getElementById("farmCount").textContent=farms.length;
+
+  document.getElementById("runningCount").textContent =
+    farms.filter(f=>f.active).length;
+
+  const totalMarches =
+    farms.reduce((a,f)=>a+f.marches,0);
+
+  const totalPossible =
+    farms.reduce((a,f)=>a+f.total,0);
+
+  document.getElementById("marchCount").textContent =
+    `${totalMarches}/${totalPossible}`;
+
+  document.getElementById("botCount").textContent =
+    farms.filter(f=>f.bot).length;
+
+  document.getElementById("farmSummary").textContent =
+    `${farms.length} Farm`;
+}
+
+async function startFarm(id){
+
+  const farm=farms.find(f=>f.id===id);
+
+  if(!farm)return;
+
+  farm.active=true;
+  farm.android=true;
+  farm.marches=farm.total;
+
+  addLog(`تم تشغيل ${farm.name}.`);
+
+  render();
+
+  if(id==="farm-1"){
+    try{
+      await fetch(API_BASE+"/api/farms/1/start",{
+        method:"POST"
+      });
+    }catch(e){
+      document.getElementById("backendStatus").textContent=
+        "Backend غير متاح";
+    }
   }
 }
-async function connectBackend(){
-  const base=prompt("أدخل عنوان Backend، مثال: http://192.168.1.10:8000",API_BASE);
-  if(base===null) return;
-  const normalized=base.trim().replace(/\/$/,"");
-  if(!normalized){
-    localStorage.removeItem("farmApiBase");
-    document.getElementById("apiState").textContent="غير متصل";
-    log("تم مسح عنوان Backend.");
+
+async function stopFarm(id){
+
+  const farm=farms.find(f=>f.id===id);
+
+  if(!farm)return;
+
+  farm.active=false;
+  farm.android=false;
+  farm.bot=false;
+  farm.marches=0;
+
+  addLog(`تم إيقاف ${farm.name}.`);
+
+  render();
+
+  if(id==="farm-1"){
+    try{
+      await fetch(API_BASE+"/api/farms/1/stop",{
+        method:"POST"
+      });
+    }catch(e){}
+  }
+}
+
+async function toggleBot(id){
+
+  const farm=farms.find(f=>f.id===id);
+
+  if(!farm)return;
+
+  if(!farm.android){
+    addLog(`لا يمكن تشغيل الأتمتة في ${farm.name} قبل تشغيل Android Cloud.`);
     return;
   }
-  localStorage.setItem("farmApiBase",normalized);
-  window.location.reload();
-}
-async function backendStart(){
-  try{ await api("/api/farms/1/start",{method:"POST"}); log("تم تشغيل Farm 1 من Backend."); await refreshFromBackend(); }
-  catch(e){ log("خطأ: "+e.message); }
-}
-async function backendStop(){
-  try{ await api("/api/farms/1/stop",{method:"POST"}); log("تم إيقاف Farm 1 من Backend."); await refreshFromBackend(); }
-  catch(e){ log("خطأ: "+e.message); }
-}
-async function backendBotStart(){
-  try{ await api("/api/farms/1/bot/start",{method:"POST"}); log("بدأت المراقبة من Backend."); await refreshFromBackend(); }
-  catch(e){ log("خطأ: "+e.message); }
-}
-async function backendBotStop(){
-  try{ await api("/api/farms/1/bot/stop",{method:"POST"}); log("أوقفت المراقبة من Backend."); await refreshFromBackend(); }
-  catch(e){ log("خطأ: "+e.message); }
+
+  farm.bot=!farm.bot;
+
+  addLog(
+    farm.bot
+    ? `بدأت أتمتة ${farm.name}.`
+    : `تم إيقاف أتمتة ${farm.name}.`
+  );
+
+  render();
+
+  if(id==="farm-1"){
+    try{
+      await fetch(
+        API_BASE+
+        (farm.bot
+        ?"/api/farms/1/bot/start"
+        :"/api/farms/1/bot/stop"),
+        {method:"POST"}
+      );
+    }catch(e){}
+  }
 }
 
+function openFarmModal(){
+  document.getElementById("farmModal").classList.add("show");
+}
+
+function closeFarmModal(){
+  document.getElementById("farmModal").classList.remove("show");
+}
+
+function createFarm(){
+
+  const name=
+    document.getElementById("farmName").value.trim()
+    ||`Farm ${farms.length+1}`;
+
+  const id=
+    document.getElementById("farmId").value.trim()
+    ||`farm-${farms.length+1}`;
+
+  const connection=
+    document.getElementById("farmConnection").value;
+
+  if(farms.some(f=>f.id===id)){
+    alert("معرّف Farm موجود مسبقًا.");
+    return;
+  }
+
+  farms.push({
+    id:id,
+    name:name,
+    active:false,
+    android:false,
+    bot:false,
+    marches:0,
+    total:5,
+    connection:connection
+  });
+
+  closeFarmModal();
+
+  document.getElementById("farmName").value="";
+  document.getElementById("farmId").value="";
+
+  addLog(`تم إنشاء ${name} في Master.`);
+
+  render();
+}
+
+function openAssistant(){
+  document.getElementById("assistantModal").classList.add("show");
+}
+
+function closeAssistant(){
+  document.getElementById("assistantModal").classList.remove("show");
+}
+
+function assistantDiagnose(){
+
+  const running=farms.filter(f=>f.active).length;
+  const bots=farms.filter(f=>f.bot).length;
+
+  let text="تشخيص PABLO:<br><br>";
+
+  text+=`عدد المزارع: ${farms.length}<br>`;
+  text+=`المزارع العاملة: ${running}<br>`;
+  text+=`الأتمتة النشطة: ${bots}<br><br>`;
+
+  if(running===0){
+    text+="لا توجد Farm تعمل حاليًا.";
+  }else{
+    text+="النظام الرئيسي يعمل، والحالات المستقلة للمزارع محفوظة داخل الواجهة.";
+  }
+
+  text+="<br><br><span class='muted'>الربط الحقيقي مع Android Cloud سيحتاج Backend قادرًا على إدارة الأجهزة.</span>";
+
+  document.getElementById("assistantText").innerHTML=text;
+}
+
+async function refreshAll(){
+
+  addLog("جاري تحديث حالة النظام...");
+
+  try{
+
+    const response=
+      await fetch(API_BASE+"/api/farms/1/status");
+
+    if(!response.ok)throw new Error();
+
+    const data=await response.json();
+
+    const farm=farms.find(f=>f.id==="farm-1");
+
+    if(farm){
+
+      farm.android=!!data.android;
+      farm.bot=!!data.bot;
+      farm.marches=data.android?5:0;
+      farm.active=!!data.android;
+    }
+
+    document.getElementById("backendStatus").textContent=
+      "Backend متصل";
+
+    addLog("تم تحديث الحالة من Backend.");
+
+  }catch(e){
+
+    document.getElementById("backendStatus").textContent=
+      "Backend غير متاح";
+
+    addLog("تعذر الاتصال بـ Backend.");
+
+  }
+
+  render();
+}
+
+function changeLanguage(){
+
+  const lang=
+    document.getElementById("language").value;
+
+  if(lang==="en"){
+    addLog("Language switched to English. Full translation module will be added later.");
+  }
+
+  if(lang==="ru"){
+    addLog("Язык переключён на русский. Полный модуль перевода будет добавлен позже.");
+  }
+
+  if(lang==="ar"){
+    addLog("تم اختيار اللغة العربية.");
+  }
+}
+
+function escapeHtml(value){
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+render();
+
+addLog("تم تشغيل PABLO Master Control.");
+
+refreshAll();
+
 </script>
+
 </body>
-</html>
+          </html>
