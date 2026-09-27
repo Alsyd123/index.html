@@ -3,192 +3,191 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Doomsday Farm Control V2</title>
+<meta name="theme-color" content="#0b1220">
+<title>PABLO — Doomsday Farm Control</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Tahoma,sans-serif;background:#0f172a;color:#e5e7eb}
-header{padding:22px 18px;background:#111827;border-bottom:1px solid #263244}
-h1{margin:0 0 6px;font-size:25px}
-.sub{color:#94a3b8;font-size:14px}
-.wrap{max-width:1100px;margin:auto;padding:18px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
-.card{background:#172033;border:1px solid #29364b;border-radius:16px;padding:18px;box-shadow:0 8px 25px #0003}
-.card h2{margin:0 0 12px;font-size:19px}
-.row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #263244}
+:root{
+  --bg:#070b14;
+  --panel:#101827;
+  --panel2:#151f31;
+  --line:#243247;
+  --text:#f1f5f9;
+  --muted:#94a3b8;
+  --green:#34d399;
+  --yellow:#fbbf24;
+  --red:#fb7185;
+  --blue:#60a5fa;
+  --purple:#a78bfa;
+}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:radial-gradient(circle at top,#14213a 0,#070b14 48%);
+  color:var(--text);
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:1250px;margin:auto;padding:18px}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin-bottom:18px
+}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{
+  width:48px;height:48px;border-radius:15px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#7c3aed,#2563eb);
+  font-size:24px;font-weight:900;
+  box-shadow:0 10px 35px #0007
+}
+h1{margin:0;font-size:22px}
+.subtitle{color:var(--muted);font-size:13px;margin-top:3px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{
+  border:1px solid var(--line);background:var(--panel2);
+  color:var(--text);padding:10px 13px;border-radius:11px
+}
+.btn:hover{border-color:#526783}
+.btn.primary{background:#2563eb;border-color:#2563eb}
+.btn.danger{background:#3b1620;border-color:#7f1d1d;color:#fecdd3}
+.btn.ai{background:#25153d;border-color:#6d28d9}
+.grid{
+  display:grid;grid-template-columns:repeat(12,1fr);gap:14px
+}
+.card{
+  grid-column:span 4;background:linear-gradient(145deg,var(--panel),#0d1524);
+  border:1px solid var(--line);border-radius:17px;padding:17px;
+  box-shadow:0 12px 35px #0003
+}
+.card.wide{grid-column:span 8}
+.card.full{grid-column:1/-1}
+.card h2{font-size:16px;margin:0 0 14px}
+.status{
+  display:flex;align-items:center;gap:8px;color:var(--green);
+  font-size:13px
+}
+.dot{width:9px;height:9px;border-radius:50%;background:currentColor;box-shadow:0 0 12px currentColor}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.stat{
+  background:#0b1220;border:1px solid var(--line);
+  border-radius:12px;padding:12px
+}
+.stat b{display:block;font-size:22px;margin-top:3px}
+.muted{color:var(--muted);font-size:12px}
+.farms{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.farm{
+  border:1px solid var(--line);background:#0b1220;
+  border-radius:14px;padding:13px
+}
+.farmhead{display:flex;justify-content:space-between;gap:8px}
+.farmname{font-weight:800}
+.badge{
+  padding:4px 8px;border-radius:99px;font-size:11px;
+  background:#064e3b;color:#a7f3d0
+}
+.badge.off{background:#3f1722;color:#fecdd3}
+.rows{display:grid;gap:8px;margin-top:12px}
+.row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #1c293c;padding-bottom:7px}
 .row:last-child{border-bottom:0}
-.label{color:#94a3b8}
-.value{font-weight:700}
-.ok{color:#34d399}.warn{color:#fbbf24}.off{color:#94a3b8}.bad{color:#fb7185}
-.progress{height:9px;background:#0b1220;border-radius:20px;overflow:hidden;margin:10px 0 14px}
-.progress>div{height:100%;width:100%;background:#34d399}
-.buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
-button{border:0;border-radius:10px;padding:11px 10px;background:#2563eb;color:white;font-weight:700;cursor:pointer}
-button.secondary{background:#334155}
-button.green{background:#059669}
-button.red{background:#b91c1c}
-button:disabled{opacity:.45;cursor:not-allowed}
-.panel{margin-top:16px;background:#111827;border:1px solid #29364b;border-radius:16px;padding:18px}
-.log{height:190px;overflow:auto;background:#0b1220;border-radius:10px;padding:10px;font-family:ui-monospace,monospace;font-size:12px;line-height:1.7}
-.log div{border-bottom:1px solid #172033;padding:3px 0}
-.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#26364e;font-size:12px}
-.note{color:#94a3b8;font-size:13px;line-height:1.6;margin-top:10px}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
-.api{font-size:12px;color:#94a3b8}
-@media(max-width:600px){.buttons{grid-template-columns:1fr}.wrap{padding:12px}}
+.mini-actions{display:flex;gap:6px;margin-top:12px}
+.mini-actions button{flex:1;padding:8px;border-radius:9px;border:1px solid var(--line);background:#121c2d;color:var(--text)}
+.marches{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.march{
+  background:#0b1220;border:1px solid var(--line);
+  border-radius:12px;padding:10px;text-align:center
+}
+.march b{display:block;margin:5px 0}
+.bar{height:6px;background:#1e293b;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#2563eb,#60a5fa);width:72%}
+.log{
+  max-height:180px;overflow:auto;display:grid;gap:7px
+}
+.log div{
+  padding:9px 10px;border-radius:9px;background:#0b1220;
+  color:#cbd5e1;font-size:12px
+}
+.assistant{
+  background:linear-gradient(135deg,#17112a,#111827);
+  border-color:#5b21b6
+}
+.chat{
+  min-height:110px;background:#0b1220;border-radius:12px;
+  padding:12px;color:#dbeafe
+}
+.footer{
+  text-align:center;color:#64748b;font-size:11px;padding:22px 0 8px
+}
+.signature{color:#a78bfa;font-weight:800;letter-spacing:1px}
+.modal{
+  position:fixed;inset:0;background:#0009;display:none;
+  align-items:center;justify-content:center;padding:18px;z-index:10
+}
+.modal.show{display:flex}
+.modalbox{
+  width:min(500px,100%);background:#101827;border:1px solid var(--line);
+  border-radius:18px;padding:18px
+}
+input,select{
+  width:100%;background:#0b1220;color:var(--text);
+  border:1px solid var(--line);border-radius:10px;padding:11px;
+  margin:7px 0 12px
+}
+@media(max-width:900px){
+  .card,.card.wide{grid-column:1/-1}
+  .farms{grid-template-columns:1fr}
+  .marches{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
+
 <body>
-<header>
-  <div class="wrap">
-    <h1>🌾 Doomsday Farm Control — V2</h1>
-    <div class="sub">لوحة التحكم التجريبية — Farm 1 مخصصة للاختبار قبل ربط السحابة واللعبة.</div>
+<div class="app">
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">P</div>
+    <div>
+      <h1>Doomsday Farm Control</h1>
+      <div class="subtitle">PABLO Master Control • الإصدار الرئيسي</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <select id="language" style="width:auto;margin:0">
+      <option value="ar">العربية</option>
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+    </select>
+    <button class="btn ai" onclick="openAI()">🤖 PABLO</button>
+    <button class="btn primary" onclick="newFarm()">＋ مزرعة جديدة</button>
   </div>
 </header>
 
-<main class="wrap">
-  <div class="topbar">
-    <span class="badge" id="overall">النظام محلي — لا يوجد خادم متصل</span>
-    <span class="api">Backend: <b id="apiState">غير متصل</b></span>
+<section class="grid">
+
+  <div class="card">
+    <h2>حالة النظام</h2>
+    <div class="status"><span class="dot"></span> النظام الرئيسي متصل</div>
+    <div class="rows">
+      <div class="row"><span class="muted">Backend</span><b id="backend">متصل</b></div>
+      <div class="row"><span class="muted">Android Cloud</span><b>3 متصلة</b></div>
+      <div class="row"><span class="muted">Bots</span><b>2 تعمل</b></div>
+    </div>
   </div>
 
-  <section class="grid">
-    <article class="card">
-      <h2>🧪 Farm 1 — الحساب التجريبي</h2>
+  <div class="card wide">
+    <h2>ملخص المزارع</h2>
+    <div class="stats">
+      <div class="stat"><span class="muted">المزارع</span><b id="farmCount">3</b></div>
+      <div class="stat"><span class="muted">نشطة</span><b>2</b></div>
+      <div class="stat"><span class="muted">متوقفة</span><b>1</b></div>
+    </div>
+  </div>
 
-      <div class="row"><span class="label">Android Cloud</span><span class="value off" id="android">متوقف</span></div>
-      <div class="row"><span class="label">Doomsday</span><span class="value off" id="game">غير مشغل</span></div>
-      <div class="row"><span class="label">الأتمتة</span><span class="value off" id="bot">متوقفة</span></div>
-      <div class="row"><span class="label">مسيرات الجمع</span><span class="value" id="heroes">0 / 5</span></div>
+  <div class="card full">
+    <h2>🌾 المزارع</h2>
+    <div class="farms" id="farms">
 
-      <div class="progress"><div id="bar" style="width:0%;background:#64748b"></div></div>
-
-      <div class="buttons">
-        <button class="green" onclick="backendStart()">تشغيل Farm</button>
-        <button class="secondary" onclick="connectBackend()">ربط Backend</button>
-        <button onclick="backendBotStart()">بدء المراقبة</button>
-        <button class="red" onclick="backendBotStop()">إيقاف المراقبة</button>
-      </div>
-
-      <div class="note">
-        هذه الواجهة لا تتصل باللعبة بعد. الأزرار الحالية تحاكي الحالة فقط حتى نبني الـ Backend والـ Android Cloud.
-      </div>
-    </article>
-
-    <article class="card">
-      <h2>⚙️ إعدادات الاختبار</h2>
-      <div class="row"><span class="label">وضع الاختبار</span><span class="value ok">مفعل</span></div>
-      <div class="row"><span class="label">حساب رئيسي</span><span class="value off">غير مضاف</span></div>
-      <div class="row"><span class="label">Farm 1</span><span class="value warn">تجريبي</span></div>
-      <div class="row"><span class="label">كشف المسيرات</span><span class="value">5 → 4</span></div>
-      <div class="row"><span class="label">المسار القادم</span><span class="value">Android Cloud</span></div>
-      <div class="note">
-        لن نخزن كلمة مرور الحساب داخل ملف HTML. عند بناء الخادم سنستخدم إعدادات سرية منفصلة.
-      </div>
-    </article>
-  </section>
-
-  <section class="panel">
-    <h2>📋 سجل الأحداث</h2>
-    <div class="log" id="log"></div>
-  </section>
-</main>
-
-<script>
-const API_BASE = localStorage.getItem("farmApiBase") || "";
-let androidOn=false, botOn=false, heroes=0;
-
-function log(msg){
-  const t=new Date().toLocaleTimeString('ar-LY');
-  const el=document.getElementById('log');
-  el.innerHTML=`<div>[${t}] ${msg}</div>`+el.innerHTML;
-}
-function render(){
-  const a=document.getElementById('android');
-  const g=document.getElementById('game');
-  const b=document.getElementById('bot');
-  a.textContent=androidOn?'يعمل':'متوقف';
-  a.className='value '+(androidOn?'ok':'off');
-  g.textContent=androidOn?'جاهز للاختبار':'غير مشغل';
-  g.className='value '+(androidOn?'warn':'off');
-  b.textContent=botOn?'مراقبة المسيرات':'متوقفة';
-  b.className='value '+(botOn?'ok':'off');
-  document.getElementById('heroes').textContent=heroes+' / 5';
-  document.getElementById('bar').style.width=(heroes*20)+'%';
-  document.getElementById('bar').style.background=heroes?'#34d399':'#64748b';
-  document.getElementById('overall').textContent=androidOn?'Farm 1 جاهزة للاختبار المحلي':'النظام محلي — لا يوجد خادم متصل';
-}
-function toggleAndroid(){
-  androidOn=!androidOn;
-  if(androidOn){heroes=5;log('تم تشغيل Android Cloud (محاكاة محلية).');}
-  else{heroes=0;botOn=false;log('تم إيقاف Android Cloud.');}
-  render();
-}
-function openScreen(){
-  if(!androidOn){log('لا يمكن عرض الشاشة: Android متوقف.');return;}
-  log('طلب فتح شاشة Android — سيتم ربطها لاحقًا بـ WebRTC/WS-Scrcpy.');
-  alert('مكان شاشة Android سيظهر هنا بعد ربط الـ Cloud Android.');
-}
-function startBot(){
-  if(!androidOn){log('شغّل Android أولًا.');return;}
-  botOn=true; log('بدأت مراقبة عدد مسيرات الجمع: 5/5.');
-  render();
-}
-function stopBot(){botOn=false;log('تم إيقاف مراقبة المسيرات.');render();}
-render();
-log("تم تحميل لوحة V2.2 — جاهزة للـBackend.");
-if(API_BASE) refreshFromBackend();
-async function api(path, options={}){
-  if(!API_BASE) throw new Error("لم يتم تحديد عنوان Backend");
-  const r=await fetch(API_BASE+path,{
-    ...options,
-    headers:{"Content-Type":"application/json",...(options.headers||{})}
-  });
-  const text=await r.text();
-  let data={};
-  try{ data=text?JSON.parse(text):{}; }catch(_){ data={detail:text}; }
-  if(!r.ok) throw new Error(data.detail || `HTTP ${r.status}`);
-  return data;
-}
-async function refreshFromBackend(){
-  try{
-    const f=await api("/api/farms/1/status");
-    androidOn=f.android; botOn=f.bot; heroes=f.heroes;
-    document.getElementById("apiState").textContent="متصل";
-    render();
-  }catch(e){
-    document.getElementById("apiState").textContent="غير متصل";
-  }
-}
-async function connectBackend(){
-  const base=prompt("أدخل عنوان Backend، مثال: http://192.168.1.10:8000",API_BASE);
-  if(base===null) return;
-  const normalized=base.trim().replace(/\/$/,"");
-  if(!normalized){
-    localStorage.removeItem("farmApiBase");
-    document.getElementById("apiState").textContent="غير متصل";
-    log("تم مسح عنوان Backend.");
-    return;
-  }
-  localStorage.setItem("farmApiBase",normalized);
-  window.location.reload();
-}
-async function backendStart(){
-  try{ await api("/api/farms/1/start",{method:"POST"}); log("تم تشغيل Farm 1 من Backend."); await refreshFromBackend(); }
-  catch(e){ log("خطأ: "+e.message); }
-}
-async function backendStop(){
-  try{ await api("/api/farms/1/stop",{method:"POST"}); log("تم إيقاف Farm 1 من Backend."); await refreshFromBackend(); }
-  catch(e){ log("خطأ: "+e.message); }
-}
-async function backendBotStart(){
-  try{ await api("/api/farms/1/bot/start",{method:"POST"}); log("بدأت المراقبة من Backend."); await refreshFromBackend(); }
-  catch(e){ log("خطأ: "+e.message); }
-}
-async function backendBotStop(){
-  try{ await api("/api/farms/1/bot/stop",{method:"POST"}); log("أوقفت المراقبة من Backend."); await refreshFromBackend(); }
-  catch(e){ log("خطأ: "+e.message); }
-}
-
-</script>
-</body>
-</html>
+      <div class="farm
