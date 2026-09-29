@@ -1,854 +1,1217 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#070b14">
-<title>PABLO • Doomsday Farm Control</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#050811">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>NEXORA Standard — A PABLO Project</title>
 <style>
-*{box-sizing:border-box}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#070b14;
-  --panel:#101827;
-  --panel2:#151f31;
-  --line:#243247;
-  --text:#f1f5f9;
-  --muted:#94a3b8;
-  --green:#22c55e;
-  --red:#ef4444;
-  --blue:#3b82f6;
-  --yellow:#f59e0b;
+  --bg:#050811;--bg2:#080d1a;--panel:#0c1322;--panel2:#101a2e;--panel3:#16213a;
+  --line:#1a2640;--line2:#243352;
+  --text:#e6ecf5;--text2:#a8b5cc;--muted:#5e6e87;
+  --green:#22c55e;--green-lt:#4ade80;--green-bg:rgba(34,197,94,.1);--green-bd:rgba(34,197,94,.25);
+  --red:#ef4444;--red-lt:#fca5a5;--red-bg:rgba(239,68,68,.1);--red-bd:rgba(239,68,68,.25);
+  --blue:#3b82f6;--blue-lt:#60a5fa;--blue-bg:rgba(59,130,246,.12);--blue-bd:rgba(59,130,246,.3);
+  --purple:#8b5cf6;--purple-lt:#a78bfa;--purple-bg:rgba(139,92,246,.1);--purple-bd:rgba(139,92,246,.25);
+  --amber:#f59e0b;--amber-lt:#fbbf24;--amber-bg:rgba(245,158,11,.1);--amber-bd:rgba(245,158,11,.25);
+  --cyan:#06b6d4;--cyan-bg:rgba(6,182,212,.08);--cyan-bd:rgba(6,182,212,.2);
+  --r:14px;--r-sm:10px;--r-lg:20px;
+  --sh:0 4px 24px rgba(0,0,0,.45);--sh-sm:0 2px 8px rgba(0,0,0,.3);
+  --tr:.18s cubic-bezier(.4,0,.2,1);
 }
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:system-ui,-apple-system,Segoe UI,Tahoma,Arial,sans-serif;
+html{font-size:15px;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",system-ui,sans-serif;line-height:1.5;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(59,130,246,.07),transparent),radial-gradient(ellipse 60% 40% at 100% 100%,rgba(139,92,246,.05),transparent);pointer-events:none;z-index:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+input,select,textarea{outline:none;width:100%}
+a{color:var(--blue-lt);text-decoration:none}
+
+/* Header */
+.header{position:sticky;top:0;z-index:100;background:rgba(5,8,17,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
+.header-inner{max-width:1200px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#2563eb,#7c3aed);font-weight:900;font-size:20px;color:#fff;flex-shrink:0;box-shadow:0 0 20px rgba(59,130,246,.25)}
+.brand-text h1{font-size:17px;font-weight:800;letter-spacing:.5px;white-space:nowrap}
+.brand-text small{display:block;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+
+/* Backend Pill */
+.backend-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;transition:var(--tr)}
+.backend-pill .pill-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.backend-pill.connected{background:var(--green-bg);color:var(--green-lt);border:1px solid var(--green-bd)}
+.backend-pill.connected .pill-dot{background:var(--green-lt);box-shadow:0 0 8px var(--green-lt)}
+.backend-pill.disconnected{background:var(--amber-bg);color:var(--amber-lt);border:1px solid var(--amber-bd)}
+.backend-pill.disconnected .pill-dot{background:var(--amber-lt)}
+.backend-pill.checking{background:rgba(94,110,135,.1);color:var(--muted);border:1px solid var(--line2)}
+.backend-pill.checking .pill-dot{background:var(--muted);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:var(--r-sm);font-size:14px;font-weight:600;transition:var(--tr);white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;box-shadow:0 2px 12px rgba(59,130,246,.3)}
+.btn-primary:hover{filter:brightness(1.1);box-shadow:0 4px 20px rgba(59,130,246,.4)}
+.btn-secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line2)}
+.btn-secondary:hover{background:var(--panel3);border-color:var(--blue-bd)}
+.btn-danger{background:var(--red-bg);color:var(--red-lt);border:1px solid var(--red-bd)}
+.btn-danger:hover{background:rgba(239,68,68,.2)}
+.btn-green{background:var(--green-bg);color:var(--green-lt);border:1px solid var(--green-bd)}
+.btn-green:hover{background:rgba(34,197,94,.2)}
+.btn-ghost{background:transparent;color:var(--text2);padding:8px 12px}
+.btn-ghost:hover{color:var(--text);background:var(--panel2)}
+.btn-sm{padding:7px 12px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* Layout */
+.container{max-width:1200px;margin:0 auto;padding:20px 16px;position:relative;z-index:1}
+.container-pad{max-width:1200px;margin:0 auto;padding:0 16px;position:relative;z-index:1}
+
+/* Auth Screen */
+.auth-wrap{max-width:420px;margin:40px auto;padding:0 16px;position:relative;z-index:1}
+.auth-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:32px 28px;box-shadow:var(--sh)}
+.auth-logo{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,#2563eb,#7c3aed);font-weight:900;font-size:30px;color:#fff;margin:0 auto 20px;box-shadow:0 0 30px rgba(59,130,246,.3)}
+.auth-title{text-align:center;font-size:22px;font-weight:800;margin-bottom:6px}
+.auth-sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:28px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.field input{background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r-sm);padding:12px 14px;font-size:15px;transition:var(--tr)}
+.field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+.field input::placeholder{color:var(--muted)}
+.auth-switch{text-align:center;margin-top:18px;font-size:13px;color:var(--muted)}
+.auth-switch a{font-weight:600;cursor:pointer}
+.auth-error{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:var(--r-sm);padding:10px 14px;font-size:13px;color:var(--red-lt);margin-bottom:16px;display:none}
+.auth-error.show{display:block}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:4px;margin-bottom:20px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{flex:1;min-width:max-content;padding:10px 16px;border-radius:var(--r-sm);font-size:14px;font-weight:600;color:var(--text2);transition:var(--tr);white-space:nowrap;text-align:center}
+.tab.active{background:var(--panel3);color:var(--text);box-shadow:var(--sh-sm)}
+.tab:hover:not(.active){color:var(--text);background:var(--panel2)}
+.tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:9px;font-size:11px;font-weight:700;margin-inline-start:6px;background:var(--blue-bg);color:var(--blue-lt)}
+
+/* Cards */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--sh-sm);margin-bottom:16px}
+.card-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:20px}
+
+/* Farm Grid */
+.farm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.farm-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--sh-sm);transition:var(--tr)}
+.farm-card:hover{border-color:var(--line2);box-shadow:var(--sh)}
+.farm-name{font-size:18px;font-weight:700;margin-bottom:4px}
+.farm-id{font-size:12px;color:var(--muted);font-family:monospace;margin-bottom:14px;word-break:break-all}
+.farm-status{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:14px}
+.farm-status.online{background:var(--green-bg);color:var(--green-lt);border:1px solid var(--green-bd)}
+.farm-status.offline{background:rgba(94,110,135,.1);color:var(--muted);border:1px solid var(--line2)}
+.farm-status.running{background:var(--blue-bg);color:var(--blue-lt);border:1px solid var(--blue-bd)}
+.farm-status .dot{width:8px;height:8px;border-radius:50%}
+.farm-status.online .dot{background:var(--green-lt);box-shadow:0 0 6px var(--green-lt)}
+.farm-status.offline .dot{background:var(--muted)}
+.farm-status.running .dot{background:var(--blue-lt);box-shadow:0 0 6px var(--blue-lt);animation:pulse 1.5s infinite}
+.farm-stats{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.farm-stat{display:flex;flex-direction:column;gap:2px}
+.farm-stat .val{font-size:20px;font-weight:800}
+.farm-stat .lbl{font-size:11px;color:var(--muted)}
+.farm-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Device List */
+.device-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}
+.device-item:last-child{border-bottom:none}
+.device-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.device-name{font-weight:600;font-size:14px}
+.device-meta{font-size:12px;color:var(--muted)}
+.device-status{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap}
+.device-status.online{background:var(--green-bg);color:var(--green-lt)}
+.device-status.offline{background:rgba(94,110,135,.1);color:var(--muted)}
+
+/* Command Log */
+.cmd-table{width:100%;border-collapse:collapse;font-size:13px}
+.cmd-table th{text-align:start;padding:8px 10px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);font-size:12px}
+.cmd-table td{padding:8px 10px;border-bottom:1px solid var(--line)}
+.cmd-table tr:hover td{background:var(--panel2)}
+.cmd-status{display:inline-flex;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.cmd-status.queued{background:rgba(94,110,135,.1);color:var(--muted)}
+.cmd-status.sent{background:var(--blue-bg);color:var(--blue-lt)}
+.cmd-status.acknowledged{background:var(--cyan-bg);color:var(--cyan)}
+.cmd-status.running{background:var(--blue-bg);color:var(--blue-lt)}
+.cmd-status.completed{background:var(--green-bg);color:var(--green-lt)}
+.cmd-status.failed{background:var(--red-bg);color:var(--red-lt)}
+.cmd-status.cancelled{background:rgba(94,110,135,.1);color:var(--muted)}
+
+/* QR Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line2);border-radius:var(--r-lg);padding:28px;max-width:400px;width:100%;box-shadow:var(--sh);text-align:center}
+.modal h3{font-size:20px;font-weight:800;margin-bottom:8px}
+.modal p{color:var(--text2);font-size:14px;margin-bottom:20px}
+.qr-display{width:200px;height:200px;margin:0 auto 20px;background:#fff;border-radius:var(--r);display:grid;place-items:center;overflow:hidden}
+.qr-display img{width:100%;height:100%}
+.qr-code-text{font-size:28px;font-weight:900;letter-spacing:4px;color:var(--text);font-family:monospace;padding:20px;background:var(--panel2);border:1px solid var(--line2);border-radius:var(--r);margin-bottom:16px}
+.qr-timer{font-size:13px;color:var(--amber-lt);margin-bottom:16px}
+.modal-close{position:relative;top:auto;right:auto}
+
+/* Settings */
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line)}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-weight:600;font-size:14px}
+.settings-desc{font-size:12px;color:var(--muted);margin-top:2px}
+.settings-control{flex-shrink:0}
+select{background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r-sm);padding:8px 12px;font-size:14px;cursor:pointer}
+select:focus{border-color:var(--blue)}
+
+/* Toggle */
+.toggle{position:relative;width:44px;height:24px;background:var(--line2);border-radius:12px;cursor:pointer;transition:var(--tr)}
+.toggle.on{background:var(--blue)}
+.toggle::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:var(--tr)}
+.toggle.on::after{transform:translateX(var(--toggle-dir,20px))}
+
+/* Support */
+.ticket-item{padding:14px;border:1px solid var(--line);border-radius:var(--r-sm);margin-bottom:10px;cursor:pointer;transition:var(--tr)}
+.ticket-item:hover{border-color:var(--line2);background:var(--panel2)}
+.ticket-subject{font-weight:600;font-size:15px;margin-bottom:4px}
+.ticket-meta{display:flex;gap:12px;font-size:12px;color:var(--muted)}
+.ticket-badge{display:inline-flex;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.ticket-badge.open{background:var(--amber-bg);color:var(--amber-lt)}
+.ticket-badge.answered{background:var(--green-bg);color:var(--green-lt)}
+.ticket-badge.closed{background:rgba(94,110,135,.1);color:var(--muted)}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;inset-inline-end:20px;z-index:300;padding:14px 20px;border-radius:var(--r-sm);font-size:14px;font-weight:600;box-shadow:var(--sh);transform:translateY(100px);opacity:0;transition:var(--tr);max-width:360px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--green-bg);color:var(--green-lt);border:1px solid var(--green-bd)}
+.toast.error{background:var(--red-bg);color:var(--red-lt);border:1px solid var(--red-bd)}
+.toast.info{background:var(--blue-bg);color:var(--blue-lt);border:1px solid var(--blue-bd)}
+
+/* Empty State */
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty .icon{font-size:48px;margin-bottom:12px;opacity:.5}
+.empty h3{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--text2)}
+.empty p{font-size:13px}
+
+/* Loading */
+.loading{display:inline-block;width:20px;height:20px;border:2px solid var(--line2);border-top-color:var(--blue-lt);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{display:flex;align-items:center;justify-content:center;min-height:200px}
+
+/* Responsive */
+@media(max-width:768px){
+  .farm-grid{grid-template-columns:1fr}
+  .tabs{gap:2px}
+  .tab{padding:8px 12px;font-size:13px}
+  .header-inner{padding:10px 12px}
+  .container{padding:16px 12px}
+  .cmd-table{font-size:12px}
+  .cmd-table th,.cmd-table td{padding:6px 8px}
+  .farm-stats{gap:12px}
+  .farm-stat .val{font-size:16px}
 }
-button,input,select{font:inherit}
-button{cursor:pointer}
-.header{
-  padding:18px;
-  border-bottom:1px solid var(--line);
-  background:#0a101c;
-  position:sticky;
-  top:0;
-  z-index:10;
-}
-.header-inner{
-  max-width:1200px;
-  margin:auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px;
-}
-.brand{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-.logo{
-  width:46px;
-  height:46px;
-  border-radius:14px;
-  display:grid;
-  place-items:center;
-  background:linear-gradient(135deg,#2563eb,#7c3aed);
-  font-weight:900;
-}
-.brand h1{margin:0;font-size:20px}
-.brand small{color:var(--muted)}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.btn{
-  border:1px solid var(--line);
-  background:var(--panel);
-  color:var(--text);
-  padding:9px 13px;
-  border-radius:10px;
-}
-.btn:hover{background:var(--panel2)}
-.btn.primary{
-  background:var(--blue);
-  border-color:var(--blue);
-}
-.btn.danger{
-  background:#3a1217;
-  border-color:#7f1d1d;
-}
-.container{
-  max-width:1200px;
-  margin:auto;
-  padding:22px 18px 80px;
-}
-.hero{
-  display:grid;
-  grid-template-columns:1.5fr 1fr;
-  gap:15px;
-}
-.card{
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:18px;
-}
-.hero h2{margin:0 0 8px;font-size:28px}
-.muted{color:var(--muted)}
-.status{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  margin-top:12px;
-  color:var(--green);
-}
-.dot{
-  width:9px;
-  height:9px;
-  border-radius:50%;
-  background:var(--green);
-}
-.stats{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:12px;
-  margin-top:15px;
-}
-.stat strong{
-  display:block;
-  font-size:25px;
-  margin-top:6px;
-}
-.section-title{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin:28px 0 12px;
-}
-.section-title h3{margin:0}
-.farms{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:14px;
-}
-.farm-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:10px;
-}
-.farm-name{
-  font-size:19px;
-  font-weight:800;
-}
-.badge{
-  padding:5px 9px;
-  border-radius:20px;
-  font-size:12px;
-  background:#10261a;
-  color:#86efac;
-  border:1px solid #166534;
-}
-.badge.off{
-  background:#2a1115;
-  color:#fca5a5;
-  border-color:#7f1d1d;
-}
-.badge.loading{
-  background:#1a1a2e;
-  color:#94a3b8;
-  border:1px solid #243247;
-}
-.badge.error{
-  background:#2a1a00;
-  color:#f59e0b;
-  border:1px solid #92400e;
-}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-  margin:15px 0;
-}
-.mini{
-  background:var(--panel2);
-  border:1px solid var(--line);
-  border-radius:11px;
-  padding:12px;
-}
-.mini strong{
-  display:block;
-  margin-top:5px;
-}
-.progress{
-  height:8px;
-  background:#0a101c;
-  border-radius:20px;
-  overflow:hidden;
-  margin:14px 0;
-}
-.progress span{
-  display:block;
-  height:100%;
-  background:linear-gradient(90deg,#2563eb,#22c55e);
-}
-.farm-actions{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
-.log{
-  max-height:260px;
-  overflow:auto;
-}
-.log-row{
-  padding:10px 0;
-  border-bottom:1px solid var(--line);
-  display:flex;
-  gap:10px;
-}
-.time{color:var(--muted);font-size:12px}
-.empty{
-  text-align:center;
-  padding:35px;
-  color:var(--muted);
-}
-.footer{
-  text-align:center;
-  color:var(--muted);
-  padding:25px;
-  border-top:1px solid var(--line);
-}
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.7);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  z-index:50;
-}
-.modal.show{display:flex}
-.modal-box{
-  width:min(520px,100%);
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:18px;
-  padding:20px;
-}
-.modal-box h3{margin-top:0}
-.field{
-  margin:12px 0;
-}
-.field label{
-  display:block;
-  margin-bottom:6px;
-  color:var(--muted);
-}
-.field input,.field select{
-  width:100%;
-  padding:11px;
-  border-radius:10px;
-  border:1px solid var(--line);
-  background:#0a101c;
-  color:var(--text);
-}
-.modal-actions{
-  display:flex;
-  justify-content:flex-end;
-  gap:8px;
-  margin-top:16px;
-}
-.assistant{
-  min-height:100px;
-  background:#0a101c;
-  border:1px solid var(--line);
-  border-radius:12px;
-  padding:14px;
-  line-height:1.8;
-}
-@media(max-width:850px){
-  .hero{grid-template-columns:1fr}
-  .farms{grid-template-columns:1fr}
-  .stats{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:520px){
-  .header-inner{align-items:flex-start;flex-direction:column}
-  .stats{grid-template-columns:1fr 1fr}
-  .grid{grid-template-columns:1fr}
-  .hero h2{font-size:23px}
-}
+[dir="ltr"] .toggle.on::after{--toggle-dir:20px;transform:translateX(20px)}
+[dir="ltr"] .toggle::after{inset-inline-start:auto;left:3px}
+[dir="ltr"] .toggle.on::after{transform:translateX(20px)}
+[dir="rtl"] .toggle.on::after{transform:translateX(-20px)}
 </style>
 </head>
-
 <body>
 
-<header class="header">
+<!-- ═══ Header ═══ -->
+<div class="header">
   <div class="header-inner">
     <div class="brand">
-      <div class="logo">P</div>
-      <div>
-        <h1>PABLO</h1>
-        <small>Doomsday Farm Control • Master</small>
+      <div class="logo">N</div>
+      <div class="brand-text">
+        <h1>NEXORA</h1>
+        <small>A PABLO Project</small>
       </div>
     </div>
-
-    <div class="actions">
-      <select class="btn" id="language" onchange="changeLanguage()">
-        <option value="ar">العربية</option>
-        <option value="en">English</option>
-        <option value="ru">Русский</option>
-      </select>
-      <button class="btn" onclick="openAssistant()">PABLO Assistant</button>
-      <button class="btn primary" onclick="openFarmModal()">＋ مزرعة جديدة</button>
-    </div>
-  </div>
-</header>
-
-<main class="container">
-
-  <section class="hero">
-
-    <div class="card">
-      <h2>لوحة التحكم الرئيسية</h2>
-      <div class="muted">
-        مركز Master لإدارة مزارع Doomsday المتعددة بشكل مستقل.
-      </div>
-
-      <div class="status">
-        <span class="dot"></span>
-        <span id="backendStatus">جارٍ التحقق...</span>
-      </div>
-
-      <div class="stats">
-        <div class="mini stat">
-          المزارع
-          <strong id="farmCount">1</strong>
-        </div>
-
-        <div class="mini stat">
-          تعمل
-          <strong id="runningCount">0</strong>
-        </div>
-
-        <div class="mini stat">
-          المسيرات
-          <strong id="marchCount">0/5</strong>
-        </div>
-
-        <div class="mini stat">
-          الأتمتة
-          <strong id="botCount">0</strong>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Master System</h3>
-      <p class="muted">
-        هذه النسخة هي المركز الرئيسي. كل Farm لها حالة مستقلة ويمكن لاحقًا ربطها
-        بجهاز Android Cloud مختلف.
-      </p>
-
-      <button class="btn primary" onclick="refreshAll()">
-        تحديث الحالة
-      </button>
-
-      <button class="btn" onclick="openAssistant()">
-        تشخيص بواسطة PABLO
-      </button>
-    </div>
-
-  </section>
-
-  <div class="section-title">
-    <h3>المزارع</h3>
-    <span class="muted" id="farmSummary">1 Farm</span>
-  </div>
-
-  <section class="farms" id="farms"></section>
-
-  <div class="section-title">
-    <h3>سجل النظام</h3>
-    <button class="btn" onclick="clearLog()">مسح السجل</button>
-  </div>
-
-  <section class="card log" id="log"></section>
-
-</main>
-
-<footer class="footer">
-  PABLO • Master Control • Doomsday Farm Control
-</footer>
-
-
-<!-- Farm Modal -->
-<div class="modal" id="farmModal">
-  <div class="modal-box">
-    <h3>إنشاء Farm جديدة</h3>
-
-    <div class="field">
-      <label>اسم المزرعة</label>
-      <input id="farmName" placeholder="مثال: Farm 2">
-    </div>
-
-    <div class="field">
-      <label>معرّف المزرعة</label>
-      <input id="farmId" placeholder="farm-2">
-    </div>
-
-    <div class="field">
-      <label>نوع الاتصال</label>
-      <select id="farmConnection">
-        <option>Android Cloud</option>
-        <option>Backend فقط</option>
-        <option>غير متصل</option>
-      </select>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn" onclick="closeFarmModal()">إلغاء</button>
-      <button class="btn primary" onclick="createFarm()">إنشاء</button>
+    <div class="header-right">
+      <span id="backendPill" class="backend-pill checking">
+        <span class="pill-dot"></span>
+        <span id="backendText">...</span>
+      </span>
+      <button class="btn btn-ghost btn-sm" id="btnLang" onclick="toggleLang()">EN</button>
+      <button class="btn btn-danger btn-sm" id="btnLogout" onclick="logout()" style="display:none">خروج</button>
     </div>
   </div>
 </div>
 
+<!-- ═══ Auth Screen ═══ -->
+<div id="authScreen" class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">N</div>
+    <div class="auth-title">NEXORA</div>
+    <div class="auth-sub" id="authSub">منصة الأتمتة والتحكم — A PABLO Project</div>
+    <div class="auth-error" id="authError"></div>
 
-<!-- Assistant Modal -->
-<div class="modal" id="assistantModal">
-  <div class="modal-box">
-    <h3>🤖 PABLO Assistant</h3>
-
-    <div class="assistant" id="assistantText">
-      مرحبًا. أنا PABLO Assistant.
-      أستطيع حاليًا قراءة حالة لوحة Master وتشخيص الحالة الأساسية.
+    <!-- Login Form -->
+    <div id="loginForm">
+      <div class="field">
+        <label id="lblEmail">البريد الإلكتروني</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label id="lblPassword">كلمة المرور</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary" style="width:100%" id="btnLogin" onclick="doLogin()">
+        <span id="loginBtnText">تسجيل الدخول</span>
+      </button>
+      <div class="auth-switch">
+        <span id="noAccount">ليس لديك حساب؟</span> <a onclick="showRegister()" id="registerLink">إنشاء حساب</a>
+      </div>
+      <div class="auth-switch">
+        <a onclick="showForgot()" id="forgotLink">نسيت كلمة المرور؟</a>
+      </div>
     </div>
 
-    <div class="modal-actions">
-      <button class="btn" onclick="assistantDiagnose()">تشخيص الحالة</button>
-      <button class="btn primary" onclick="closeAssistant()">إغلاق</button>
+    <!-- Register Form -->
+    <div id="registerForm" style="display:none">
+      <div class="field">
+        <label id="lblRegEmail">البريد الإلكتروني</label>
+        <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label id="lblRegDisplayName">الاسم المعروض (اختياري)</label>
+        <input type="text" id="regDisplayName" placeholder="Pablo">
+      </div>
+      <div class="field">
+        <label id="lblRegPassword">كلمة المرور (8 أحرف على الأقل)</label>
+        <input type="password" id="regPassword" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <button class="btn btn-primary" style="width:100%" id="btnRegister" onclick="doRegister()">
+        <span id="registerBtnText">إنشاء حساب</span>
+      </button>
+      <div class="auth-switch">
+        <span id="haveAccount">لديك حساب؟</span> <a onclick="showLogin()" id="loginLink">تسجيل الدخول</a>
+      </div>
+    </div>
+
+    <!-- Forgot Password Form -->
+    <div id="forgotForm" style="display:none">
+      <div class="field">
+        <label id="lblForgotEmail">البريد الإلكتروني</label>
+        <input type="email" id="forgotEmail" placeholder="you@example.com">
+      </div>
+      <button class="btn btn-primary" style="width:100%" id="btnForgot" onclick="doForgot()">
+        <span id="forgotBtnText">إرسال رابط الاستعادة</span>
+      </button>
+      <div class="auth-switch">
+        <a onclick="showLogin()" id="backToLogin">العودة لتسجيل الدخول</a>
+      </div>
     </div>
   </div>
 </div>
+
+<!-- ═══ Main App ═══ -->
+<div id="mainApp" style="display:none">
+  <div class="container">
+    <!-- Tabs -->
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-tab="farms" onclick="switchTab('farms')" id="tabFarms">Farms</div>
+      <div class="tab" data-tab="devices" onclick="switchTab('devices')" id="tabDevices">الأجهزة</div>
+      <div class="tab" data-tab="commands" onclick="switchTab('commands')" id="tabCommands">الأوامر</div>
+      <div class="tab" data-tab="support" onclick="switchTab('support')" id="tabSupport">الدعم</div>
+      <div class="tab" data-tab="settings" onclick="switchTab('settings')" id="tabSettings">الإعدادات</div>
+    </div>
+
+    <!-- Farms Tab -->
+    <div id="tabContent-farms" class="tab-content">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:20px;font-weight:800" id="farmsTitle">مزارعي</h2>
+        <button class="btn btn-primary btn-sm" onclick="showCreateFarm()" id="btnCreateFarm">+ Farm جديدة</button>
+      </div>
+      <div id="farmsList" class="farm-grid"></div>
+    </div>
+
+    <!-- Devices Tab -->
+    <div id="tabContent-devices" class="tab-content" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:20px;font-weight:800" id="devicesTitle">أجهزتي</h2>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary btn-sm" onclick="showLinkDevice()" id="btnLinkDevice">ربط جهاز جديد</button>
+        </div>
+      </div>
+      <div id="devicesList"></div>
+    </div>
+
+    <!-- Commands Tab -->
+    <div id="tabContent-commands" class="tab-content" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:20px;font-weight:800" id="commandsTitle">سجل الأوامر</h2>
+        <button class="btn btn-secondary btn-sm" onclick="loadCommands()" id="btnRefreshCmds">تحديث</button>
+      </div>
+      <!-- Send Command -->
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+          <div class="field" style="flex:1;min-width:150px">
+            <label id="lblCmdFarm">المزرعة</label>
+            <select id="cmdFarmSelect" style="width:100%;background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r-sm);padding:10px 12px;color:var(--text)"></select>
+          </div>
+          <div class="field" style="flex:1;min-width:150px">
+            <label id="lblCmdType">نوع المهمة</label>
+            <select id="cmdTypeSelect" style="width:100%;background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r-sm);padding:10px 12px;color:var(--text)">
+              <option value="gather_resources">جمع الموارد</option>
+              <option value="zombie_kill">قتل الزومبي</option>
+              <option value="plague_camp">معسكر الوباء</option>
+              <option value="heal_troops">شفاء القوات</option>
+            </select>
+          </div>
+          <button class="btn btn-green" onclick="sendCommand()" id="btnSendCmd">إرسال الأمر</button>
+        </div>
+      </div>
+      <div class="card">
+        <div style="overflow-x:auto">
+          <table class="cmd-table" id="cmdTable">
+            <thead>
+              <tr>
+                <th id="thCmdType">النوع</th>
+                <th>Farm</th>
+                <th id="thCmdStatus">الحالة</th>
+                <th id="thCmdTime">الوقت</th>
+                <th id="thCmdError">خطأ</th>
+              </tr>
+            </thead>
+            <tbody id="cmdTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Support Tab -->
+    <div id="tabContent-support" class="tab-content" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:20px;font-weight:800" id="supportTitle">الدعم الفني</h2>
+        <button class="btn btn-primary btn-sm" onclick="showCreateTicket()" id="btnNewTicket">+ تذكرة جديدة</button>
+      </div>
+      <div id="ticketsList"></div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="tabContent-settings" class="tab-content" style="display:none">
+      <h2 style="font-size:20px;font-weight:800;margin-bottom:16px" id="settingsTitle">الإعدادات</h2>
+      <div class="card">
+        <div class="settings-row">
+          <div>
+            <div class="settings-label" id="lblLangSetting">اللغة</div>
+            <div class="settings-desc" id="descLang">اختر لغة الواجهة</div>
+          </div>
+          <div class="settings-control">
+            <select id="settingLang" onchange="updateSetting('language', this.value)">
+              <option value="ar">العربية</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label" id="lblTheme">السمة</div>
+            <div class="settings-desc" id="descTheme">مظهر الواجهة</div>
+          </div>
+          <div class="settings-control">
+            <select id="settingTheme" onchange="updateSetting('theme', this.value)">
+              <option value="dark" id="optDark">داكن</option>
+              <option value="light" id="optLight">فاتح</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label" id="lblNotif">الإشعارات</div>
+            <div class="settings-desc" id="descNotif">تنبيهات الأوامر والأحداث</div>
+          </div>
+          <div class="settings-control">
+            <div class="toggle on" id="toggleNotif" onclick="toggleNotif()"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">👤</span> <span id="lblProfile">الملف الشخصي</span></div>
+        <div class="field">
+          <label id="lblDisplayName">الاسم المعروض</label>
+          <input type="text" id="profileDisplayName" placeholder="Pablo">
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="updateProfile()" id="btnSaveProfile">حفظ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Create Farm Modal ═══ -->
+<div class="modal-overlay" id="modalCreateFarm">
+  <div class="modal" style="text-align:start">
+    <h3 id="createFarmTitle" style="margin-bottom:20px">إنشاء Farm جديدة</h3>
+    <div class="field">
+      <label id="lblFarmName">اسم Farm</label>
+      <input type="text" id="farmName" placeholder="My Doomsday Farm">
+    </div>
+    <div class="field">
+      <label id="lblGameFarmId">Game Farm ID (اختياري)</label>
+      <input type="text" id="gameFarmId" placeholder="12345">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-primary" style="flex:1" onclick="createFarm()" id="btnConfirmCreateFarm">إنشاء</button>
+      <button class="btn btn-secondary" onclick="closeModal('modalCreateFarm')" id="btnCancel">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Link Device Modal ═══ -->
+<div class="modal-overlay" id="modalLinkDevice">
+  <div class="modal">
+    <h3 id="linkDeviceTitle">ربط جهاز جديد</h3>
+    <p id="linkDeviceDesc">امسح هذا الرمز بتطبيق NEXORA QR Reader على جهاز Android</p>
+    <div class="field" id="linkFarmSelectWrap" style="margin-bottom:16px">
+      <label id="lblLinkFarm">اختر المزرعة</label>
+      <select id="linkFarmSelect" style="width:100%;background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r-sm);padding:10px 12px;color:var(--text)"></select>
+    </div>
+    <div style="text-align:center;margin:16px 0">
+      <img id="qrCodeImage" src="" alt="QR Code" style="display:none;width:240px;height:240px;border-radius:var(--r-sm);border:1px solid var(--line2)" />
+    </div>
+    <div class="qr-code-text" id="qrCodeText">------</div>
+    <div class="qr-timer" id="qrTimer"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modalLinkDevice')" id="btnCloseLink">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Create Ticket Modal ═══ -->
+<div class="modal-overlay" id="modalCreateTicket">
+  <div class="modal" style="text-align:start">
+    <h3 id="createTicketTitle" style="margin-bottom:20px">تذكرة دعم جديدة</h3>
+    <div class="field">
+      <label id="lblTicketSubject">الموضوع</label>
+      <input type="text" id="ticketSubject" placeholder="مشكلة في تشغيل Farm">
+    </div>
+    <div class="field">
+      <label id="lblTicketMessage">التفاصيل</label>
+      <textarea id="ticketMessage" rows="4" placeholder="اشرح المشكلة بالتفصيل..." style="background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r-sm);padding:12px 14px;resize:vertical"></textarea>
+    </div>
+    <div class="field">
+      <label id="lblTicketPriority">الأولوية</label>
+      <select id="ticketPriority">
+        <option value="low" id="optLow">منخفضة</option>
+        <option value="normal" selected id="optNormal">عادية</option>
+        <option value="high" id="optHigh">عالية</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-primary" style="flex:1" onclick="createTicket()" id="btnConfirmTicket">إنشاء</button>
+      <button class="btn btn-secondary" onclick="closeModal('modalCreateTicket')" id="btnCancelTicket">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Ticket Detail Modal ═══ -->
+<div class="modal-overlay" id="modalTicketDetail">
+  <div class="modal" style="text-align:start;max-width:500px">
+    <h3 id="ticketDetailSubject" style="margin-bottom:8px"></h3>
+    <div id="ticketDetailMeta" style="font-size:12px;color:var(--muted);margin-bottom:16px"></div>
+    <div id="ticketMessages" style="max-height:300px;overflow-y:auto;margin-bottom:16px"></div>
+    <div class="field">
+      <textarea id="ticketReply" rows="3" placeholder="اكتب ردك..." style="background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r-sm);padding:12px 14px;resize:vertical"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="btn btn-primary" style="flex:1" onclick="replyTicket()" id="btnSendReply">إرسال</button>
+      <button class="btn btn-secondary" onclick="closeModal('modalTicketDetail')" id="btnCloseTicket">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Toast ═══ -->
+<div class="toast" id="toast"></div>
 
 <script>
+// ═══════════════════════════════════════════════════════════
+// NEXORA Standard — Frontend Logic
+// ═══════════════════════════════════════════════════════════
 
-const API_BASE =
-  "https://broken-truth-4022.hhhvhggh704.workers.dev";
+const API_BASE = "https://broken-truth-4022.hhhvhggh704.workers.dev";
 
-let farms = [
-  {
-    id:"farm-1",
-    name:"Farm 1",
-    active:false,
-    android:false,
-    bot:false,
-    marches:0,
-    total:5,
-    connection:"Android Cloud",
-    loading:true,
-    backendError:false
+// ── State ──
+let token = localStorage.getItem("nexora_token") || null;
+let currentUser = null;
+let currentLang = localStorage.getItem("nexora_lang") || "ar";
+let currentTab = "farms";
+let farms = [];
+let devices = [];
+let commands = [];
+let tickets = [];
+let currentTicketId = null;
+let qrTimerInterval = null;
+let settings = { language: "ar", notifications_enabled: true, theme: "dark" };
+
+// ── i18n ──
+const i18n = {
+  ar: {
+    farms: "مزارعي", devices: "الأجهزة", commands: "الأوامر", support: "الدعم", settings: "الإعدادات",
+    logout: "خروج", login: "تسجيل الدخول", register: "إنشاء حساب", email: "البريد الإلكتروني",
+    password: "كلمة المرور", displayName: "الاسم المعروض", noAccount: "ليس لديك حساب؟",
+    haveAccount: "لديك حساب؟", forgot: "نسيت كلمة المرور؟", backToLogin: "العودة لتسجيل الدخول",
+    sendReset: "إرسال رابط الاستعادة", authSub: "منصة الأتمتة والتحكم — A PABLO Project",
+    createFarm: "+ Farm جديدة", farmName: "اسم Farm", gameFarmId: "Game Farm ID (اختياري)",
+    create: "إنشاء", cancel: "إلغاء", linkDevice: "ربط جهاز جديد", scanQR: "امسح هذا الرمز بتطبيق NEXORA Link على جهاز Android",
+    close: "إغلاق", newTicket: "+ تذكرة جديدة", subject: "الموضوع", details: "التفاصيل",
+    priority: "الأولوية", low: "منخفضة", normal: "عادية", high: "عالية", send: "إرسال",
+    type: "النوع", status: "الحالة", time: "الوقت", error: "خطأ", refresh: "تحديث",
+    language: "اللغة", chooseLang: "اختر لغة الواجهة", theme: "السمة", appearance: "مظهر الواجهة",
+    dark: "داكن", light: "فاتح", notifications: "الإشعارات", notifDesc: "تنبيهات الأوامر والأحداث",
+    profile: "الملف الشخصي", save: "حفظ", noFarms: "لا توجد مزارع", noFarmsDesc: "أنشئ أول Farm لك",
+    noDevices: "لا توجد أجهزة", noDevicesDesc: "اربط جهاز Android للبدء",
+    noCommands: "لا توجد أوامر", noTickets: "لا توجد تذاكر", noTicketsDesc: "أنشئ تذكرة دعم",
+    connected: "متصل", disconnected: "غير متصل", checking: "فحص...",
+    maxFarms: "الحد الأقصى 5 مزارع لكل حساب", farmCreated: "تم إنشاء Farm",
+    deviceLinked: "تم ربط الجهاز", ticketCreated: "تم إنشاء التذكرة", profileUpdated: "تم تحديث الملف",
+    settingsUpdated: "تم تحديث الإعدادات", loginSuccess: "تم تسجيل الدخول", registerSuccess: "تم إنشاء الحساب",
+    resetSent: "إذا كان البريد موجوداً، تم إرسال رابط الاستعادة", invalidCreds: "بيانات غير صحيحة",
+    emailExists: "البريد مسجل بالفعل", passwordShort: "كلمة المرور قصيرة جداً (8 أحرف على الأقل)",
+    invalidEmail: "بريد إلكتروني غير صالح", fillAll: "املأ جميع الحقول المطلوبة",
+    loadFailed: "فشل تحميل البيانات", apiError: "خطأ في الاتصال بالخادم",
+    online: "متصل", offline: "غير متصل", running: "يعمل", ready: "جاهز",
+    zombieKills: "Zombie Kills", plagueCamps: "Plague Camps", heroes: "الأبطال",
+    start: "تشغيل", stop: "إيقاف", botStart: "تشغيل البوت", botStop: "إيقاف البوت",
+    edit: "تعديل", unlink: "إلغاء الربط", revoke: "إبطال",
+    lastSeen: "آخر اتصال", appVersion: "إصدار التطبيق", deviceId: "معرف الجهاز",
+    farmId: "معرف Farm", commandLog: "سجل الأوامر"
+  },
+  en: {
+    farms: "My Farms", devices: "Devices", commands: "Commands", support: "Support", settings: "Settings",
+    logout: "Logout", login: "Login", register: "Register", email: "Email",
+    password: "Password", displayName: "Display Name", noAccount: "No account?",
+    haveAccount: "Have an account?", forgot: "Forgot password?", backToLogin: "Back to login",
+    sendReset: "Send reset link", authSub: "Automation & Control Platform — A PABLO Project",
+    createFarm: "+ New Farm", farmName: "Farm Name", gameFarmId: "Game Farm ID (optional)",
+    create: "Create", cancel: "Cancel", linkDevice: "Link new device", scanQR: "Scan this code with NEXORA Link app on your Android device",
+    close: "Close", newTicket: "+ New ticket", subject: "Subject", details: "Details",
+    priority: "Priority", low: "Low", normal: "Normal", high: "High", send: "Send",
+    type: "Type", status: "Status", time: "Time", error: "Error", refresh: "Refresh",
+    language: "Language", chooseLang: "Choose interface language", theme: "Theme", appearance: "Interface appearance",
+    dark: "Dark", light: "Light", notifications: "Notifications", notifDesc: "Command and event alerts",
+    profile: "Profile", save: "Save", noFarms: "No farms", noFarmsDesc: "Create your first farm",
+    noDevices: "No devices", noDevicesDesc: "Link an Android device to start",
+    noCommands: "No commands", noTickets: "No tickets", noTicketsDesc: "Create a support ticket",
+    connected: "Connected", disconnected: "Disconnected", checking: "Checking...",
+    maxFarms: "Maximum 5 farms per account", farmCreated: "Farm created",
+    deviceLinked: "Device linked", ticketCreated: "Ticket created", profileUpdated: "Profile updated",
+    settingsUpdated: "Settings updated", loginSuccess: "Logged in", registerSuccess: "Account created",
+    resetSent: "If the email exists, a reset link has been sent", invalidCreds: "Invalid credentials",
+    emailExists: "Email already registered", passwordShort: "Password too short (min 8 characters)",
+    invalidEmail: "Invalid email", fillAll: "Fill all required fields",
+    loadFailed: "Failed to load data", apiError: "Server connection error",
+    online: "Online", offline: "Offline", running: "Running", ready: "Ready",
+    zombieKills: "Zombie Kills", plagueCamps: "Plague Camps", heroes: "Heroes",
+    start: "Start", stop: "Stop", botStart: "Start Bot", botStop: "Stop Bot",
+    edit: "Edit", unlink: "Unlink", revoke: "Revoke",
+    lastSeen: "Last seen", appVersion: "App version", deviceId: "Device ID",
+    farmId: "Farm ID", commandLog: "Command Log"
   }
-];
+};
 
-function now(){
-  return new Date().toLocaleTimeString("ar",{hour:"2-digit",minute:"2-digit"});
-}
+function t(key) { return (i18n[currentLang] && i18n[currentLang][key]) || i18n.ar[key] || key; }
 
-function addLog(message){
-  const box=document.getElementById("log");
-
-  const row=document.createElement("div");
-  row.className="log-row";
-
-  row.innerHTML =
-    `<span class="time">${now()}</span><span>${message}</span>`;
-
-  box.prepend(row);
-}
-
-function clearLog(){
-  document.getElementById("log").innerHTML="";
-  addLog("تم مسح سجل النظام.");
-}
-
-function render(){
-
-  const container=document.getElementById("farms");
-  container.innerHTML="";
-
-  farms.forEach(farm=>{
-
-    const card=document.createElement("div");
-    card.className="card";
-
-    let badgeHtml;
-    if(farm.loading){
-      badgeHtml = `<span class="badge loading">جارٍ التحقق...</span>`;
-    } else if(farm.backendError){
-      badgeHtml = `<span class="badge error">Backend غير متاح</span>`;
-    } else {
-      badgeHtml = `<span class="badge ${farm.active?"":"off"}">${farm.active?"تعمل":"متوقفة"}</span>`;
+// ── API Helper ──
+async function api(path, method = "GET", body = null) {
+  const opts = {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { "Authorization": "Bearer " + token } : {})
     }
-
-    card.innerHTML=`
-
-      <div class="farm-head">
-
-        <div>
-          <div class="farm-name">${escapeHtml(farm.name)}</div>
-          <div class="muted">${escapeHtml(farm.id)}</div>
-        </div>
-
-        ${badgeHtml}
-
-      </div>
-
-      <div class="grid">
-
-        <div class="mini">
-          Android Cloud
-          <strong>${farm.loading?"...":(farm.android?"متصل":"غير مشغل")}</strong>
-        </div>
-
-        <div class="mini">
-          Doomsday
-          <strong>${farm.loading?"...":(farm.android?"جاهزة":"غير متصلة")}</strong>
-        </div>
-
-        <div class="mini">
-          الأتمتة
-          <strong>${farm.loading?"...":(farm.bot?"تعمل":"متوقفة")}</strong>
-        </div>
-
-      </div>
-
-      <div class="muted">
-        مسيرات الجمع: ${farm.marches}/${farm.total}
-      </div>
-
-      <div class="progress">
-        <span style="width:${(farm.marches/farm.total)*100}%"></span>
-      </div>
-
-      <div class="farm-actions">
-
-        <button class="btn primary"
-          onclick="startFarm('${farm.id}')">
-          تشغيل Farm
-        </button>
-
-        <button class="btn"
-          onclick="toggleBot('${farm.id}')">
-          ${farm.bot?"إيقاف الأتمتة":"بدء الأتمتة"}
-        </button>
-
-        <button class="btn danger"
-          onclick="stopFarm('${farm.id}')">
-          إيقاف
-        </button>
-
-      </div>
-    `;
-
-    container.appendChild(card);
-  });
-
-  updateStats();
-}
-
-function updateStats(){
-
-  document.getElementById("farmCount").textContent=farms.length;
-
-  document.getElementById("runningCount").textContent =
-    farms.filter(f=>f.active).length;
-
-  const totalMarches =
-    farms.reduce((a,f)=>a+f.marches,0);
-
-  const totalPossible =
-    farms.reduce((a,f)=>a+f.total,0);
-
-  document.getElementById("marchCount").textContent =
-    `${totalMarches}/${totalPossible}`;
-
-  document.getElementById("botCount").textContent =
-    farms.filter(f=>f.bot).length;
-
-  document.getElementById("farmSummary").textContent =
-    `${farms.length} Farm`;
-}
-
-async function startFarm(id){
-
-  const farm=farms.find(f=>f.id===id);
-
-  if(!farm)return;
-
-  farm.active=true;
-  farm.android=true;
-  farm.marches=farm.total;
-  farm.loading=false;
-  farm.backendError=false;
-
-  addLog(`تم تشغيل ${farm.name}.`);
-
-  render();
-
-  if(id==="farm-1"){
-    try{
-      const resp = await fetch(API_BASE+"/api/farms/1/start",{
-        method:"POST"
-      });
-      if(!resp.ok) throw new Error("Backend returned " + resp.status);
-    }catch(e){
-      document.getElementById("backendStatus").textContent=
-        "Backend غير متاح";
-      addLog(`فشل تشغيل ${farm.name} — Backend غير متاح.`);
-    }
+  };
+  if (body && method !== "GET") opts.body = JSON.stringify(body);
+  try {
+    const resp = await fetch(API_BASE + path, opts);
+    const data = await resp.json();
+    if (!resp.ok) return { ok: false, error: data.error || "Request failed", status: resp.status };
+    return data;
+  } catch (e) {
+    return { ok: false, error: "network_error", status: 0 };
   }
 }
 
-async function stopFarm(id){
-
-  const farm=farms.find(f=>f.id===id);
-
-  if(!farm)return;
-
-  farm.active=false;
-  farm.android=false;
-  farm.bot=false;
-  farm.marches=0;
-  farm.loading=false;
-  farm.backendError=false;
-
-  addLog(`تم إيقاف ${farm.name}.`);
-
-  render();
-
-  if(id==="farm-1"){
-    try{
-      const resp = await fetch(API_BASE+"/api/farms/1/stop",{
-        method:"POST"
-      });
-      if(!resp.ok) throw new Error("Backend returned " + resp.status);
-    }catch(e){
-      document.getElementById("backendStatus").textContent=
-        "Backend غير متاح";
-      addLog(`فشل إيقاف ${farm.name} — Backend غير متاح.`);
-    }
-  }
+// ── Toast ──
+function toast(msg, type = "info") {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = "toast " + type;
+  setTimeout(() => el.classList.add("show"), 10);
+  setTimeout(() => el.classList.remove("show"), 3000);
 }
 
-async function toggleBot(id){
-
-  const farm=farms.find(f=>f.id===id);
-
-  if(!farm)return;
-
-  if(!farm.android){
-    addLog(`لا يمكن تشغيل الأتمتة في ${farm.name} قبل تشغيل Android Cloud.`);
-    return;
-  }
-
-  farm.bot=!farm.bot;
-  farm.loading=false;
-  farm.backendError=false;
-
-  addLog(
-    farm.bot
-    ? `بدأت أتمتة ${farm.name}.`
-    : `تم إيقاف أتمتة ${farm.name}.`
-  );
-
-  render();
-
-  if(id==="farm-1"){
-    try{
-      const resp = await fetch(
-        API_BASE+
-        (farm.bot
-        ?"/api/farms/1/bot/start"
-        :"/api/farms/1/bot/stop"),
-        {method:"POST"}
-      );
-      if(!resp.ok) throw new Error("Backend returned " + resp.status);
-    }catch(e){
-      document.getElementById("backendStatus").textContent=
-        "Backend غير متاح";
-      addLog(`فشل تبديل الأتمتة في ${farm.name} — Backend غير متاح.`);
-    }
-  }
-}
-
-function openFarmModal(){
-  document.getElementById("farmModal").classList.add("show");
-}
-
-function closeFarmModal(){
-  document.getElementById("farmModal").classList.remove("show");
-}
-
-function createFarm(){
-
-  const name =
-    document.getElementById("farmName").value.trim()
-    ||`Farm ${farms.length+1}`;
-
-  const id =
-    document.getElementById("farmId").value.trim()
-    ||`farm-${farms.length+1}`;
-
-  const connection =
-    document.getElementById("farmConnection").value;
-
-  if(farms.some(f=>f.id===id)){
-    alert("معرّف Farm موجود مسبقًا.");
-    return;
-  }
-
-  farms.push({
-    id:id,
-    name:name,
-    active:false,
-    android:false,
-    bot:false,
-    marches:0,
-    total:5,
-    connection:connection,
-    loading:false,
-    backendError:false
-  });
-
-  closeFarmModal();
-
-  document.getElementById("farmName").value="";
-  document.getElementById("farmId").value="";
-
-  addLog(`تم إنشاء ${name} في Master.`);
-
-  render();
-}
-
-function openAssistant(){
-  document.getElementById("assistantModal").classList.add("show");
-}
-
-function closeAssistant(){
-  document.getElementById("assistantModal").classList.remove("show");
-}
-
-function assistantDiagnose(){
-
-  const running=farms.filter(f=>f.active).length;
-  const bots=farms.filter(f=>f.bot).length;
-
-  let text="تشخيص PABLO:<br><br>";
-
-  text+=`عدد المزارع: ${farms.length}<br>`;
-  text+=`المزارع العاملة: ${running}<br>`;
-  text+=`الأتمتة النشطة: ${bots}<br><br>`;
-
-  if(running===0){
-    text+="لا توجد Farm تعمل حاليًا.";
-  }else{
-    text+="النظام الرئيسي يعمل، والحالات المستقلة للمزارع محفوظة داخل الواجهة.";
-  }
-
-  text+="<br><br><span class='muted'>الربط الحقيقي مع Android Cloud سيحتاج Backend قادرًا على إدارة الأجهزة.</span>";
-
-  document.getElementById("assistantText").innerHTML=text;
-}
-
-async function refreshAll(){
-
-  addLog("جاري تحديث حالة النظام...");
-
-  const farm = farms.find(f=>f.id==="farm-1");
-
-  try{
-
-    const response =
-      await fetch(API_BASE+"/api/farms/1/status");
-
-    if(!response.ok) throw new Error("Backend returned " + response.status);
-
-    const data = await response.json();
-
-    if(farm){
-      farm.loading = false;
-      farm.backendError = false;
-      farm.android = !!data.farm.android;
-      farm.bot = !!data.farm.bot;
-      farm.marches = data.farm.android ? 5 : 0;
-
-      if(data.farm.status === "ready"){
-        farm.active = true;
-      } else if(data.farm.status === "offline"){
-        farm.active = false;
+// ── Backend Status ──
+async function checkBackend() {
+  const pill = document.getElementById("backendPill");
+  const text = document.getElementById("backendText");
+  pill.className = "backend-pill checking";
+  text.textContent = t("checking");
+  try {
+    const resp = await fetch(API_BASE + "/");
+    const data = await resp.json();
+    if (data.ok) {
+      pill.className = "backend-pill connected";
+      text.textContent = t("connected");
+      // Check if NEXORA or legacy
+      if (data.service && data.service.includes("NEXORA")) {
+        // NEXORA mode — show auth
       } else {
-        farm.active = !!data.farm.android;
+        // Legacy Doomsday mode — still works for farm status
       }
+    } else {
+      pill.className = "backend-pill disconnected";
+      text.textContent = t("disconnected");
+    }
+  } catch (e) {
+    pill.className = "backend-pill disconnected";
+    text.textContent = t("disconnected");
+  }
+}
+
+// ── Auth ──
+function showLogin() {
+  document.getElementById("loginForm").style.display = "block";
+  document.getElementById("registerForm").style.display = "none";
+  document.getElementById("forgotForm").style.display = "none";
+  hideAuthError();
+}
+function showRegister() {
+  document.getElementById("loginForm").style.display = "none";
+  document.getElementById("registerForm").style.display = "block";
+  document.getElementById("forgotForm").style.display = "none";
+  hideAuthError();
+}
+function showForgot() {
+  document.getElementById("loginForm").style.display = "none";
+  document.getElementById("registerForm").style.display = "none";
+  document.getElementById("forgotForm").style.display = "block";
+  hideAuthError();
+}
+function showAuthError(msg) {
+  const el = document.getElementById("authError");
+  el.textContent = msg;
+  el.classList.add("show");
+}
+function hideAuthError() {
+  document.getElementById("authError").classList.remove("show");
+}
+
+async function doLogin() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  if (!email || !password) { showAuthError(t("fillAll")); return; }
+  const btn = document.getElementById("btnLogin");
+  btn.disabled = true;
+  document.getElementById("loginBtnText").innerHTML = '<span class="loading"></span>';
+  const result = await api("/api/auth/login", "POST", { email, password });
+  btn.disabled = false;
+  document.getElementById("loginBtnText").textContent = t("login");
+  if (result.ok) {
+    token = result.token;
+    localStorage.setItem("nexora_token", token);
+    currentUser = result.user;
+    toast(t("loginSuccess"), "success");
+    enterApp();
+  } else {
+    showAuthError(t(result.error === "Invalid credentials" ? "invalidCreds" : "apiError"));
+  }
+}
+
+async function doRegister() {
+  const email = document.getElementById("regEmail").value.trim();
+  const password = document.getElementById("regPassword").value;
+  const displayName = document.getElementById("regDisplayName").value.trim();
+  if (!email || !password) { showAuthError(t("fillAll")); return; }
+  if (password.length < 8) { showAuthError(t("passwordShort")); return; }
+  const btn = document.getElementById("btnRegister");
+  btn.disabled = true;
+  document.getElementById("registerBtnText").innerHTML = '<span class="loading"></span>';
+  const result = await api("/api/auth/register", "POST", { email, password, display_name: displayName });
+  btn.disabled = false;
+  document.getElementById("registerBtnText").textContent = t("register");
+  if (result.ok) {
+    token = result.token;
+    localStorage.setItem("nexora_token", token);
+    currentUser = result.user;
+    toast(t("registerSuccess"), "success");
+    enterApp();
+  } else {
+    if (result.error === "Email already registered") showAuthError(t("emailExists"));
+    else if (result.error === "Password must be at least 8 characters") showAuthError(t("passwordShort"));
+    else if (result.error === "Invalid email") showAuthError(t("invalidEmail"));
+    else showAuthError(t("apiError"));
+  }
+}
+
+async function doForgot() {
+  const email = document.getElementById("forgotEmail").value.trim();
+  if (!email) { showAuthError(t("fillAll")); return; }
+  const btn = document.getElementById("btnForgot");
+  btn.disabled = true;
+  document.getElementById("forgotBtnText").innerHTML = '<span class="loading"></span>';
+  const result = await api("/api/auth/forgot-password", "POST", { email });
+  btn.disabled = false;
+  document.getElementById("forgotBtnText").textContent = t("sendReset");
+  toast(t("resetSent"), "info");
+  setTimeout(() => showLogin(), 1500);
+}
+
+function logout() {
+  api("/api/auth/logout", "POST");
+  token = null;
+  localStorage.removeItem("nexora_token");
+  currentUser = null;
+  document.getElementById("mainApp").style.display = "none";
+  document.getElementById("authScreen").style.display = "block";
+  document.getElementById("btnLogout").style.display = "none";
+  showLogin();
+}
+
+async function checkSession() {
+  if (!token) return false;
+  const result = await api("/api/auth/me");
+  if (result.ok) {
+    currentUser = result.user;
+    if (result.settings) {
+      settings = result.settings;
+      currentLang = settings.language || "ar";
+      applyLang();
+    }
+    return true;
+  }
+  return false;
+}
+
+function enterApp() {
+  document.getElementById("authScreen").style.display = "none";
+  document.getElementById("mainApp").style.display = "block";
+  document.getElementById("btnLogout").style.display = "inline-flex";
+  switchTab("farms");
+}
+
+// ── Tabs ──
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tab));
+  document.querySelectorAll(".tab-content").forEach(c => c.style.display = "none");
+  const content = document.getElementById("tabContent-" + tab);
+  if (content) content.style.display = "block";
+  if (tab === "farms") loadFarms();
+  else if (tab === "devices") loadDevices();
+  else if (tab === "commands") loadCommands();
+  else if (tab === "support") loadTickets();
+  else if (tab === "settings") loadSettings();
+}
+
+// ── Farms ──
+async function loadFarms() {
+  const list = document.getElementById("farmsList");
+  list.innerHTML = '<div class="loading-overlay"><span class="loading"></span></div>';
+  const result = await api("/api/farms");
+  if (result.ok) {
+    farms = result.farms || [];
+    if (farms.length === 0) {
+      list.innerHTML = `<div class="empty"><div class="icon">🌾</div><h3>${t("noFarms")}</h3><p>${t("noFarmsDesc")}</p></div>`;
+      return;
+    }
+    list.innerHTML = farms.map(f => renderFarmCard(f)).join("");
+  } else {
+    list.innerHTML = `<div class="empty"><div class="icon">⚠️</div><h3>${t("loadFailed")}</h3><p>${result.error}</p></div>`;
+  }
+}
+
+function renderFarmCard(f) {
+  const statusClass = f.status === "running" ? "running" : (f.status === "ready" || f.status === "online" ? "online" : "offline");
+  const statusText = f.status === "running" ? t("running") : (f.status === "ready" ? t("ready") : t("offline"));
+  const leaseInfo = f.activeDeviceId
+    ? `<div class="farm-id">Device: ${esc(f.activeDeviceId.substring(0,8))}... • Lease: ${f.leaseValid ? "✅" : "❌"}</div>`
+    : `<div class="farm-id">No active device</div>`;
+  return `
+    <div class="farm-card">
+      <div class="farm-name">${esc(f.name)}</div>
+      <div class="farm-id">${t("farmId")}: ${esc(f.id.substring(0,8))}...</div>
+      ${f.gameFarmId ? `<div class="farm-id">Game Farm ID: ${esc(f.gameFarmId)}</div>` : ""}
+      ${leaseInfo}
+      <div class="farm-status ${statusClass}"><span class="dot"></span> ${statusText}</div>
+      <div class="farm-stats">
+        <div class="farm-stat"><span class="val">${f.heroes || 0}</span><span class="lbl">${t("heroes")}</span></div>
+        <div class="farm-stat"><span class="val">${f.android ? "✓" : "✗"}</span><span class="lbl">Android</span></div>
+        <div class="farm-stat"><span class="val">${f.bot ? "✓" : "✗"}</span><span class="lbl">Bot</span></div>
+      </div>
+      <div class="farm-actions">
+        <button class="btn btn-green btn-sm" onclick="farmAction('${esc(f.id)}','start')" ${f.android ? "disabled" : ""}>${t("start")}</button>
+        <button class="btn btn-danger btn-sm" onclick="farmAction('${esc(f.id)}','stop')" ${!f.android ? "disabled" : ""}>${t("stop")}</button>
+        <button class="btn btn-secondary btn-sm" onclick="farmAction('${esc(f.id)}','bot/start')" ${!f.android || f.bot ? "disabled" : ""}>${t("botStart")}</button>
+        <button class="btn btn-secondary btn-sm" onclick="farmAction('${esc(f.id)}','bot/stop')" ${!f.bot ? "disabled" : ""}>${t("botStop")}</button>
+      </div>
+    </div>`;
+}
+
+async function farmAction(farmId, action) {
+  const result = await api(`/api/farms/${farmId}/${action}`, "POST");
+  if (result.ok) {
+    toast("✓ " + action, "success");
+    loadFarms();
+  } else {
+    toast(result.error || "Error", "error");
+  }
+}
+
+function showCreateFarm() {
+  if (farms.length >= 5) { toast(t("maxFarms"), "error"); return; }
+  document.getElementById("farmName").value = "";
+  document.getElementById("gameFarmId").value = "";
+  document.getElementById("modalCreateFarm").classList.add("show");
+}
+
+async function createFarm() {
+  const name = document.getElementById("farmName").value.trim();
+  const gameFarmId = document.getElementById("gameFarmId").value.trim() || null;
+  if (!name) { toast(t("fillAll"), "error"); return; }
+  const result = await api("/api/farms", "POST", { name, game_farm_id: gameFarmId });
+  if (result.ok) {
+    toast(t("farmCreated"), "success");
+    closeModal("modalCreateFarm");
+    loadFarms();
+  } else {
+    toast(result.error || "Error", "error");
+  }
+}
+
+// ── Devices ──
+async function loadDevices() {
+  const list = document.getElementById("devicesList");
+  list.innerHTML = '<div class="loading-overlay"><span class="loading"></span></div>';
+  const result = await api("/api/devices");
+  if (result.ok) {
+    devices = result.devices || [];
+    if (devices.length === 0) {
+      list.innerHTML = `<div class="empty"><div class="icon">📱</div><h3>${t("noDevices")}</h3><p>${t("noDevicesDesc")}</p></div>`;
+      return;
+    }
+    list.innerHTML = devices.map(d => `
+      <div class="card">
+        <div class="device-item">
+          <div class="device-info">
+            <div class="device-name">${esc(d.name)}</div>
+            <div class="device-meta">${t("deviceId")}: ${esc(d.id.substring(0,8))}... • ${d.app_version ? "v" + esc(d.app_version) : "v?"}</div>
+            <div class="device-meta">${t("lastSeen")}: ${d.last_seen ? formatTime(d.last_seen) : "—"}</div>
+            ${d.farm_id ? `<div class="device-meta" style="color:var(--green-lt)">Farm: ${esc(d.farm_id.substring(0,8))}...</div>` : ""}
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <span class="device-status ${d.status === "online" ? "online" : "offline"}">${d.status === "online" ? t("online") : t("offline")}</span>
+            <div style="display:flex;gap:6px">
+              ${d.farm_id ? `<button class="btn btn-green btn-sm" onclick="activateDevice('${esc(d.id)}','${esc(d.farm_id)}')">تفعيل</button>` : ""}
+              ${d.farm_id ? `<button class="btn btn-secondary btn-sm" onclick="releaseDevice('${esc(d.id)}','${esc(d.farm_id)}')">إيقاف</button>` : ""}
+              <button class="btn btn-danger btn-sm" onclick="unlinkDevice('${esc(d.id)}')">${t("unlink")}</button>
+            </div>
+          </div>
+        </div>
+      </div>`).join("");
+  } else {
+    list.innerHTML = `<div class="empty"><div class="icon">⚠️</div><h3>${t("loadFailed")}</h3></div>`;
+  }
+}
+
+async function activateDevice(deviceId, farmId) {
+  const result = await api(`/api/farms/${farmId}/activate-device`, "POST", { device_id: deviceId });
+  if (result.ok) { toast("✓ تم تفعيل الجهاز", "success"); loadDevices(); loadFarms(); }
+  else { toast(result.error || "Error", "error"); }
+}
+
+async function releaseDevice(deviceId, farmId) {
+  const result = await api(`/api/farms/${farmId}/release-lease`, "POST", { device_id: deviceId });
+  if (result.ok) { toast("✓ تم إيقاف الجهاز", "success"); loadDevices(); loadFarms(); }
+  else { toast(result.error || "Error", "error"); }
+}
+
+async function showLinkDevice() {
+  // Populate farm selector
+  const sel = document.getElementById("linkFarmSelect");
+  sel.innerHTML = farms.map(f => `<option value="${esc(f.id)}">${esc(f.name)}</option>`).join("");
+  // Generate link code with selected farm_id
+  const farmId = sel.value || (farms.length > 0 ? farms[0].id : null);
+  if (!farmId) { toast("أنشئ مزرعة أولاً", "error"); return; }
+
+  // Show modal with loading state — do NOT show QR until server confirms code creation
+  document.getElementById("qrCodeText").textContent = "جاري إنشاء الرمز...";
+  document.getElementById("qrTimer").textContent = "";
+  document.getElementById("modalLinkDevice").classList.add("show");
+
+  const result = await api("/api/devices/link-code", "POST", { farm_id: farmId });
+  if (result.ok && result.code) {
+    // Build QR payload as JSON — matches NEXORA QR Reader format
+    // Fields: code (6 chars), server (whitelisted URL)
+    // The QR Reader validates server against its whitelist before passing
+    // the code to NEXORA Link. The code is NOT consumed by the QR Reader.
+    const qrPayload = JSON.stringify({
+      code: result.code,
+      server: "https://broken-truth-4022.hhhvhggh704.workers.dev"
+    });
+
+    // Display the QR payload as text (for manual entry fallback)
+    // and generate a visual QR code using Google Chart API
+    document.getElementById("qrCodeText").textContent = result.code;
+
+    // Generate QR image via API endpoint
+    const qrImg = document.getElementById("qrCodeImage");
+    if (qrImg) {
+      qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=" +
+        encodeURIComponent(qrPayload);
+      qrImg.style.display = "block";
     }
 
-    document.getElementById("backendStatus").textContent =
-      "Backend متصل";
+    // Start countdown
+    const expires = new Date(result.expires_at).getTime();
+    if (qrTimerInterval) clearInterval(qrTimerInterval);
+    qrTimerInterval = setInterval(() => {
+      const remaining = Math.max(0, Math.floor((expires - Date.now()) / 1000));
+      document.getElementById("qrTimer").textContent = remaining > 0 ? `⏱ ${remaining}s` : "⏱ انتهت الصلاحية";
+      if (remaining <= 0) {
+        clearInterval(qrTimerInterval);
+        const img = document.getElementById("qrCodeImage");
+        if (img) img.style.display = "none";
+        document.getElementById("qrCodeText").textContent = "انتهت الصلاحية";
+      }
+    }, 1000);
+  } else {
+    // Server rejected code creation — do NOT show QR
+    document.getElementById("qrCodeText").textContent = "فشل إنشاء الرمز";
+    document.getElementById("qrTimer").textContent = result.error || "Error";
+    const img = document.getElementById("qrCodeImage");
+    if (img) img.style.display = "none";
+    toast(result.error || "Error", "error");
+  }
+}
 
-    addLog("تم تحديث الحالة من Backend.");
+async function unlinkDevice(deviceId) {
+  const result = await api(`/api/devices/${deviceId}`, "DELETE");
+  if (result.ok) {
+    toast("✓", "success");
+    loadDevices();
+  } else {
+    toast(result.error || "Error", "error");
+  }
+}
 
-  }catch(e){
+// ── Commands ──
+async function loadCommands() {
+  const body = document.getElementById("cmdTableBody");
+  body.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px"><span class="loading"></span></td></tr>';
+  // Populate farm selector
+  const sel = document.getElementById("cmdFarmSelect");
+  if (sel) sel.innerHTML = farms.map(f => `<option value="${esc(f.id)}">${esc(f.name)}</option>`).join("");
+  // Load commands from all farms
+  let allCmds = [];
+  for (const f of farms) {
+    const result = await api(`/api/farms/${f.id}/commands`);
+    if (result.ok && result.data) allCmds = allCmds.concat(result.data);
+  }
+  commands = allCmds.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  if (commands.length === 0) {
+    body.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">${t("noCommands")}</td></tr>`;
+    return;
+  }
+  body.innerHTML = commands.map(c => `
+    <tr>
+      <td>${esc(c.command_type)}</td>
+      <td>${esc((c.farm_id || "").substring(0,8))}...</td>
+      <td><span class="cmd-status ${c.status}">${c.status}</span></td>
+      <td>${formatTime(c.created_at)}</td>
+      <td style="color:var(--red-lt);font-size:12px">${c.error ? esc(c.error.substring(0,40)) : "—"}</td>
+    </tr>`).join("");
+}
 
-    if(farm){
-      farm.loading = false;
-      farm.backendError = true;
-      // Do NOT set active=false — state is unknown, not confirmed stopped
+async function sendCommand() {
+  const farmId = document.getElementById("cmdFarmSelect").value;
+  const commandType = document.getElementById("cmdTypeSelect").value;
+  if (!farmId) { toast("اختر مزرعة", "error"); return; }
+  const result = await api("/api/commands", "POST", { farm_id: farmId, command_type: commandType });
+  if (result.ok) {
+    toast("✓ تم إرسال الأمر", "success");
+    loadCommands();
+  } else {
+    toast(result.error || "Error", "error");
+  }
+}
+
+// ── Support ──
+async function loadTickets() {
+  const list = document.getElementById("ticketsList");
+  list.innerHTML = '<div class="loading-overlay"><span class="loading"></span></div>';
+  const result = await api("/api/support/tickets");
+  if (result.ok) {
+    tickets = result.tickets || [];
+    if (tickets.length === 0) {
+      list.innerHTML = `<div class="empty"><div class="icon">🎫</div><h3>${t("noTickets")}</h3><p>${t("noTicketsDesc")}</p></div>`;
+      return;
     }
-
-    document.getElementById("backendStatus").textContent =
-      "Backend غير متاح";
-
-    addLog("تعذر الاتصال بـ Backend — الحالة غير مؤكدة.");
-
-  }
-
-  render();
-}
-
-function changeLanguage(){
-
-  const lang =
-    document.getElementById("language").value;
-
-  if(lang==="en"){
-    addLog("Language switched to English. Full translation module will be added later.");
-  }
-
-  if(lang==="ru"){
-    addLog("Язык переключён на русский. Полный модуль перевода будет добавлен позже.");
-  }
-
-  if(lang==="ar"){
-    addLog("تم اختيار اللغة العربية.");
+    list.innerHTML = tickets.map(t2 => `
+      <div class="ticket-item" onclick="showTicketDetail('${esc(t2.id)}')">
+        <div class="ticket-subject">${esc(t2.subject)}</div>
+        <div class="ticket-meta">
+          <span class="ticket-badge ${t2.status}">${t2.status}</span>
+          <span>${formatTime(t2.created_at)}</span>
+        </div>
+      </div>`).join("");
+  } else {
+    list.innerHTML = `<div class="empty"><div class="icon">⚠️</div><h3>${t("loadFailed")}</h3></div>`;
   }
 }
 
-function escapeHtml(value){
-
-  return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+function showCreateTicket() {
+  document.getElementById("ticketSubject").value = "";
+  document.getElementById("ticketMessage").value = "";
+  document.getElementById("modalCreateTicket").classList.add("show");
 }
 
-render();
+async function createTicket() {
+  const subject = document.getElementById("ticketSubject").value.trim();
+  const message = document.getElementById("ticketMessage").value.trim();
+  const priority = document.getElementById("ticketPriority").value;
+  if (!subject || !message) { toast(t("fillAll"), "error"); return; }
+  const result = await api("/api/support/tickets", "POST", { subject, message, priority });
+  if (result.ok) {
+    toast(t("ticketCreated"), "success");
+    closeModal("modalCreateTicket");
+    loadTickets();
+  } else {
+    toast(result.error || "Error", "error");
+  }
+}
 
-addLog("تم تشغيل PABLO Master Control.");
+async function showTicketDetail(ticketId) {
+  currentTicketId = ticketId;
+  const result = await api(`/api/support/tickets/${ticketId}`);
+  if (result.ok) {
+    document.getElementById("ticketDetailSubject").textContent = result.ticket.subject;
+    document.getElementById("ticketDetailMeta").innerHTML = `<span class="ticket-badge ${result.ticket.status}">${result.ticket.status}</span> • ${formatTime(result.ticket.created_at)}`;
+    const msgs = (result.messages || []).map(m => `
+      <div style="margin-bottom:12px;padding:10px 14px;border-radius:var(--r-sm);background:${m.is_admin ? "var(--blue-bg)" : "var(--panel2)"};border:1px solid ${m.is_admin ? "var(--blue-bd)" : "var(--line)"}">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px">${m.is_admin ? "Support" : "You"} • ${formatTime(m.created_at)}</div>
+        <div style="font-size:14px">${esc(m.message)}</div>
+      </div>`).join("");
+    document.getElementById("ticketMessages").innerHTML = msgs || '<div style="color:var(--muted);text-align:center">—</div>';
+    document.getElementById("ticketReply").value = "";
+    document.getElementById("modalTicketDetail").classList.add("show");
+  } else {
+    toast(result.error || "Error", "error");
+  }
+}
 
-refreshAll();
+async function replyTicket() {
+  const message = document.getElementById("ticketReply").value.trim();
+  if (!message) return;
+  const result = await api(`/api/support/tickets/${currentTicketId}`, "POST", { message });
+  if (result.ok) {
+    toast("✓", "success");
+    showTicketDetail(currentTicketId);
+  } else {
+    toast(result.error || "Error", "error");
+  }
+}
 
+// ── Settings ──
+async function loadSettings() {
+  document.getElementById("settingLang").value = settings.language || "ar";
+  document.getElementById("settingTheme").value = settings.theme || "dark";
+  document.getElementById("toggleNotif").classList.toggle("on", settings.notifications_enabled !== false);
+  if (currentUser) document.getElementById("profileDisplayName").value = currentUser.display_name || "";
+}
+
+async function updateSetting(key, value) {
+  const result = await api("/api/auth/settings", "PATCH", { [key]: value });
+  if (result.ok) {
+    settings[key] = value;
+    if (key === "language") { currentLang = value; applyLang(); }
+    toast(t("settingsUpdated"), "success");
+  } else {
+    toast(result.error || "Error", "error");
+  }
+}
+
+function toggleNotif() {
+  const newVal = !document.getElementById("toggleNotif").classList.contains("on");
+  document.getElementById("toggleNotif").classList.toggle("on", newVal);
+  updateSetting("notifications_enabled", newVal);
+}
+
+async function updateProfile() {
+  const displayName = document.getElementById("profileDisplayName").value.trim();
+  const result = await api("/api/auth/me", "PATCH", { display_name: displayName });
+  if (result.ok) {
+    currentUser.display_name = displayName;
+    toast(t("profileUpdated"), "success");
+  } else {
+    toast(result.error || "Error", "error");
+  }
+}
+
+// ── Language ──
+function toggleLang() {
+  currentLang = currentLang === "ar" ? "en" : "ar";
+  localStorage.setItem("nexora_lang", currentLang);
+  applyLang();
+  if (token) updateSetting("language", currentLang);
+}
+
+function applyLang() {
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = currentLang === "ar" ? "rtl" : "ltr";
+  document.getElementById("btnLang").textContent = currentLang === "ar" ? "EN" : "ع";
+  // Update UI strings
+  const map = {
+    tabFarms: "farms", tabDevices: "devices", tabCommands: "commands", tabSupport: "support", tabSettings: "settings",
+    farmsTitle: "farms", devicesTitle: "devices", commandsTitle: "commandLog", supportTitle: "support", settingsTitle: "settings",
+    btnCreateFarm: "createFarm", btnLinkDevice: "linkDevice", btnNewTicket: "newTicket",
+    lblEmail: "email", lblPassword: "password", lblRegEmail: "email", lblRegDisplayName: "displayName", lblRegPassword: "password",
+    lblForgotEmail: "email", lblFarmName: "farmName", lblGameFarmId: "gameFarmId",
+    lblTicketSubject: "subject", lblTicketMessage: "details", lblTicketPriority: "priority",
+    lblLangSetting: "language", descLang: "chooseLang", lblTheme: "theme", descTheme: "appearance",
+    lblNotif: "notifications", descNotif: "notifDesc", lblDisplayName: "displayName", lblProfile: "profile",
+    authSub: "authSub", loginBtnText: "login", registerBtnText: "register", forgotBtnText: "sendReset",
+    noAccount: "noAccount", haveAccount: "haveAccount", forgotLink: "forgot", registerLink: "register",
+    loginLink: "login", backToLogin: "backToLogin",
+    btnLogout: "logout", btnConfirmCreateFarm: "create", btnCancel: "cancel",
+    linkDeviceTitle: "linkDevice", linkDeviceDesc: "scanQR", btnCloseLink: "close",
+    createTicketTitle: "newTicket", btnConfirmTicket: "create", btnCancelTicket: "cancel",
+    btnSendReply: "send", btnCloseTicket: "close", btnSaveProfile: "save",
+    btnRefreshCmds: "refresh", thCmdType: "type", thCmdStatus: "status", thCmdTime: "time", thCmdError: "error",
+    optLow: "low", optNormal: "normal", optHigh: "high", optDark: "dark", optLight: "light"
+  };
+  for (const [id, key] of Object.entries(map)) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = t(key);
+  }
+}
+
+// ── Utils ──
+function esc(s) { return String(s || "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+function formatTime(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = (now - d) / 1000;
+  if (diff < 60) return currentLang === "ar" ? "الآن" : "now";
+  if (diff < 3600) return Math.floor(diff / 60) + (currentLang === "ar" ? " د" : "m");
+  if (diff < 86400) return Math.floor(diff / 3600) + (currentLang === "ar" ? " س" : "h");
+  return d.toLocaleDateString(currentLang === "ar" ? "ar" : "en");
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove("show");
+  if (id === "modalLinkDevice" && qrTimerInterval) { clearInterval(qrTimerInterval); qrTimerInterval = null; }
+}
+
+// ── Init ──
+async function init() {
+  applyLang();
+  await checkBackend();
+  const sessionOk = await checkSession();
+  if (sessionOk) enterApp();
+  else showLogin();
+}
+
+init();
 </script>
-
-
-</body></html>
+</body>
+</html>
